@@ -1,0 +1,7 @@
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug-mingw/CMakeFiles/engine.dir
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug-mingw/CMakeFiles/install/local.dir
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug-mingw/CMakeFiles/install.dir
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug-mingw/CMakeFiles/edit_cache.dir
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug-mingw/CMakeFiles/rebuild_cache.dir
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug-mingw/CMakeFiles/list_install_components.dir
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug-mingw/CMakeFiles/install/strip.dir

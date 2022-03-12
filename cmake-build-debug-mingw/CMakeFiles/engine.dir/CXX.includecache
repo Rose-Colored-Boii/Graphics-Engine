@@ -1,0 +1,86 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/Figure.h
+vector
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/vector
+vector3d.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/vector3d.h
+easy_image.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/easy_image.h
+
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/LSystemElement.h
+Line2D.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/Line2D.h
+
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/Line2D.h
+easy_image.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/easy_image.h
+
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/easy_image.h
+stdint.h
+-
+vector
+-
+iostream
+-
+
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.cc
+easy_image.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/easy_image.h
+ini_configuration.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/ini_configuration.h
+Line2D.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/Line2D.h
+l_parser.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/l_parser.h
+LSystemElement.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/LSystemElement.h
+vector3d.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/vector3d.h
+Figure.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/Figure.h
+fstream
+-
+iostream
+-
+string
+-
+cmath
+-
+math.h
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/math.h
+
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/ini_configuration.h
+iostream
+-
+map
+-
+stdexcept
+-
+string
+-
+vector
+-
+
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/l_parser.h
+map
+-
+string
+-
+set
+-
+exception
+-
+vector
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/vector
+
+C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/vector3d.h
+iostream
+-
+
