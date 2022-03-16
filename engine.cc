@@ -9,8 +9,6 @@
 #include <iostream>
 #include <string>
 #include <cmath>
-#include "math.h"
-#define _USE_MATH_DEFINES
 using namespace std;
 using Lines2D = vector<Line2D>;
 using Figures3D = vector<Figure>;
@@ -114,11 +112,9 @@ Matrix scaleFigure(const double scaleFactor){
             if (j == i and j != 4){
                 scalingMatrix(i, j) = scaleFactor;
             }
-            else if (j == i and j == 4){
-                scalingMatrix(i, j) = 1;
-            }
         }
     }
+    scalingMatrix(4, 4) = 1;
     return scalingMatrix;
 }
 
@@ -194,7 +190,7 @@ Matrix translate(const Vector3D& vector){
 
 void applyTransformation(Figure& fig, const Matrix &m){
     for (auto& point : fig.points){
-        point = point * m;
+        point *= m;
     }
 }
 
@@ -241,9 +237,9 @@ Lines2D doProjection(const Figures3D& figures, const double d = 1){
                 Point2D point(x, y);
                 points.push_back(point);
             }
-            for (Point2D p1 : points){
-                for (Point2D p2 : points){
-                    Line2D line(p1, p2, figure.color);
+            for (int i = 0; i != points.size(); i++){
+                for (int j = i+1; j != points.size(); j++){
+                    Line2D line(points[i], points[j], figure.color);
                     lines.push_back(line);
                 }
             }
@@ -297,7 +293,7 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
                 string point = "point";
                 point += to_string(j);
                 vector<double> coPoint = configuration[figure][point].as_double_tuple_or_die();
-                fig.points.push_back(Vector3D::point(coPoint[0], coPoint[1], coPoint[2])*transform);
+                fig.points.push_back(Vector3D::point(coPoint[0], coPoint[1], coPoint[2]));
                 int nrLines = configuration[figure]["nrLines"].as_int_or_die();
                 for (int j = 0; j != nrLines; j++) {
                     string line = "line";
@@ -307,6 +303,7 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
                     fig.faces.push_back(face);
                 }
             }
+            applyTransformation(fig, transform);
             figures.push_back(fig);
         }
         applyTransformation(figures, eyeMat);
