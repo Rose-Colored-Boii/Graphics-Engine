@@ -4,22 +4,15 @@ set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
 
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
-  "CXX"
-  )
-# The set of files for implicit dependencies of each language:
-set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/easy_image.cc" "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug/CMakeFiles/engine.dir/easy_image.cc.obj"
-  "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.cc" "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug/CMakeFiles/engine.dir/engine.cc.obj"
-  "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/ini_configuration.cc" "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug/CMakeFiles/engine.dir/ini_configuration.cc.obj"
-  )
-set(CMAKE_CXX_COMPILER_ID "GNU")
-
-# The include file search paths:
-set(CMAKE_CXX_TARGET_INCLUDE_PATH
   )
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "C:/Users/liaml/CLionProjects/Graphics-Engine/easy_image.cc" "CMakeFiles/engine.dir/easy_image.cc.obj" "gcc" "CMakeFiles/engine.dir/easy_image.cc.obj.d"
+  "C:/Users/liaml/CLionProjects/Graphics-Engine/engine.cc" "CMakeFiles/engine.dir/engine.cc.obj" "gcc" "CMakeFiles/engine.dir/engine.cc.obj.d"
+  "C:/Users/liaml/CLionProjects/Graphics-Engine/ini_configuration.cc" "CMakeFiles/engine.dir/ini_configuration.cc.obj" "gcc" "CMakeFiles/engine.dir/ini_configuration.cc.obj.d"
+  "C:/Users/liaml/CLionProjects/Graphics-Engine/l_parser.cc" "CMakeFiles/engine.dir/l_parser.cc.obj" "gcc" "CMakeFiles/engine.dir/l_parser.cc.obj.d"
+  "C:/Users/liaml/CLionProjects/Graphics-Engine/vector3d.cc" "CMakeFiles/engine.dir/vector3d.cc.obj" "gcc" "CMakeFiles/engine.dir/vector3d.cc.obj.d"
   )
 
 # Targets to which this target links.

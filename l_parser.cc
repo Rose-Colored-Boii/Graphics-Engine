@@ -505,14 +505,20 @@ std::string const& LParser::LSystem::get_replacement(char c) const
     std::vector<double> probabilities;
     for (auto rule : rules){
         replacementStrings.push_back(rule.first);
-        probabilities.push_back(rule.second);
+        probabilities.push_back(rule.second*100);
     }
-    while (true){
-        for (int index = 0; index != probabilities.size(); index++){
-            srand((unsigned int)time(NULL));
-            if ((rand()%100) < probabilities[index]*100){
-                return replacementrules.find(c)->second[index].first;
-            }
+    std::vector<double> sums = {probabilities[0]};
+    for (int i = 1; i != probabilities.size(); i++){
+        sums[i] = probabilities[i] + sums[i-1];
+    }
+    srand((unsigned int)time(NULL));
+    int randInt = rand()%100;
+    if (randInt <= sums[0]){
+        return replacementStrings[0];
+    }
+    for (int i = 1; i != sums.size(); i++){
+        if (randInt > sums[i-1] and randInt <= sums[i]){
+            return replacementStrings[i];
         }
     }
 }

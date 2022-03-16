@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics
+# Install script for directory: C:/Users/liaml/CLionProjects/Graphics-Engine
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,23 +34,23 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/Program Files (x86)/mingw64/bin/objdump.exe")
+  set(CMAKE_OBJDUMP "C:/Program Files/JetBrains/CLion 2021.3.3/bin/mingw/bin/objdump.exe")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.exe")
+   "C:/Users/liaml/CLionProjects/Graphics-Engine/engine.exe")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics" TYPE EXECUTABLE FILES "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug/engine.exe")
-  if(EXISTS "$ENV{DESTDIR}/C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.exe" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.exe")
+  file(INSTALL DESTINATION "C:/Users/liaml/CLionProjects/Graphics-Engine" TYPE EXECUTABLE FILES "C:/Users/liaml/CLionProjects/Graphics-Engine/cmake-build-debug/engine.exe")
+  if(EXISTS "$ENV{DESTDIR}/C:/Users/liaml/CLionProjects/Graphics-Engine/engine.exe" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/C:/Users/liaml/CLionProjects/Graphics-Engine/engine.exe")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "C:/Program Files (x86)/mingw64/bin/strip.exe" "$ENV{DESTDIR}/C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.exe")
+      execute_process(COMMAND "C:/Program Files/JetBrains/CLion 2021.3.3/bin/mingw/bin/strip.exe" "$ENV{DESTDIR}/C:/Users/liaml/CLionProjects/Graphics-Engine/engine.exe")
     endif()
   endif()
 endif()
@@ -63,5 +63,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/liaml/CLionProjects/Graphics-Engine/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
