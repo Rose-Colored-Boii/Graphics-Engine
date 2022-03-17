@@ -521,6 +521,7 @@ std::string const& LParser::LSystem::get_replacement(char c) const
             return replacementStrings[i];
         }
     }
+    return replacementStrings[0];
 }
 double LParser::LSystem::get_angle() const
 {

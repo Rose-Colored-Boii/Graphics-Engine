@@ -106,31 +106,17 @@ img::EasyImage generateLsystem(const string& fileName, const int size, const img
 
 Matrix scaleFigure(const double scaleFactor){
     Matrix scalingMatrix;
-    for (int i = 1; i != 5; i++){
-        for (int j = 1; j != 5; j++){
-            scalingMatrix(i, j) = 0;
-            if (j == i and j != 4){
-                scalingMatrix(i, j) = scaleFactor;
-            }
-        }
-    }
+    scalingMatrix(1, 1) = scaleFactor;
+    scalingMatrix(2, 2) = scaleFactor;
+    scalingMatrix(3, 3) = scaleFactor;
     scalingMatrix(4, 4) = 1;
     return scalingMatrix;
 }
 
 Matrix rotateX(const double angle){
     Matrix rotationMatrix;
-    for (int i = 1; i != 5; i++){
-        for (int j = 1; j != 5; j++){
-            rotationMatrix(i, j) = 0;
-            if (i == j and (i == 1 or i == 4)){
-                rotationMatrix(i, j) = 1;
-            }
-            else if (i == j and (i == 2 or i == 3)){
-                rotationMatrix(i, j) = cos(angle * pi/180);
-            }
-        }
-    }
+    rotationMatrix(2, 2) = cos(angle * pi/180);
+    rotationMatrix(3, 3) = cos(angle * pi/180);
     rotationMatrix(3, 1) = -sin(angle * pi/180);
     rotationMatrix(2, 3) = sin(angle * pi/180);
     return rotationMatrix;
@@ -138,17 +124,8 @@ Matrix rotateX(const double angle){
 
 Matrix rotateY(const double angle){
     Matrix rotationMatrix;
-    for (int i = 1; i != 5; i++){
-        for (int j = 1; j != 5; j++){
-            rotationMatrix(i, j) = 0;
-            if (i == j and (i == 2 or i == 4)){
-                rotationMatrix(i, j) = 1;
-            }
-            else if (i == j and (i == 1 or i == 3)){
-                rotationMatrix(i, j) = cos(angle * pi/180);
-            }
-        }
-    }
+    rotationMatrix(1, 1) = cos(angle * pi/180);
+    rotationMatrix(3, 3) = cos(angle * pi/180);
     rotationMatrix(1, 3) = -sin(angle * pi/180);
     rotationMatrix(3, 1) = sin(angle * pi/180);
     return rotationMatrix;
@@ -156,17 +133,8 @@ Matrix rotateY(const double angle){
 
 Matrix rotateZ(const double angle){
     Matrix rotationMatrix;
-    for (int i = 1; i != 5; i++){
-        for (int j = 1; j != 5; j++){
-            rotationMatrix(i, j) = 0;
-            if (i == j and (i == 3 or i == 4)){
-                rotationMatrix(i, j) = 1;
-            }
-            else if (i == j and (i == 1 or i == 2)){
-                rotationMatrix(i, j) = cos(angle * pi/180);
-            }
-        }
-    }
+    rotationMatrix(1, 1) = cos(angle * pi/180);
+    rotationMatrix(2, 2) = cos(angle * pi/180);
     rotationMatrix(2, 1) = -sin(angle * pi/180);
     rotationMatrix(1, 2) = sin(angle * pi/180);
     return rotationMatrix;
@@ -174,14 +142,6 @@ Matrix rotateZ(const double angle){
 
 Matrix translate(const Vector3D& vector){
     Matrix translationMatrix;
-    for (int i = 1; i != 5; i++){
-        for (int j = 1; j != 5; j++){
-            translationMatrix(i, j) = 0;
-            if (i == j){
-                translationMatrix(i, j) = 1;
-            }
-        }
-    }
     translationMatrix(4, 1) = vector.x;
     translationMatrix(4, 2) = vector.y;
     translationMatrix(4, 3) = vector.z;
@@ -226,16 +186,20 @@ Matrix eyeMatrix(const double theta, const double phi, const double r){
     return transformationMatrix;
 }
 
+Point2D doProjection(const Vector3D& point, const double d = 1){
+    double x = (d*point.x)/(-point.z);
+    double y = (d*point.y)/(-point.z);
+    Point2D p(x, y);
+    return p;
+}
+
 Lines2D doProjection(const Figures3D& figures, const double d = 1){
     Lines2D lines;
     for (auto figure : figures){
-        for (const auto& face : figure.faces){
+        for (auto face : figure.faces){
             vector<Point2D> points;
             for (auto index : face.point_indexes){
-                double x = (d * figure.points[index].x)/(-figure.points[index].z);
-                double y = (d * figure.points[index].y)/(-figure.points[index].z);
-                Point2D point(x, y);
-                points.push_back(point);
+                points.push_back(doProjection(figure.points[index]));
             }
             for (int i = 0; i != points.size(); i++){
                 for (int j = i+1; j != points.size(); j++){
@@ -249,6 +213,7 @@ Lines2D doProjection(const Figures3D& figures, const double d = 1){
 }
 
 img::EasyImage generate_image(const ini::Configuration &configuration) {
+    Matrix m;
     string type = configuration["General"]["type"].as_string_or_die();
     int size = configuration["General"]["size"].as_int_or_die();
     vector<double> bgColorTuple = configuration["General"]["backgroundcolor"].as_double_tuple_or_die();
@@ -293,15 +258,16 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
                 string point = "point";
                 point += to_string(j);
                 vector<double> coPoint = configuration[figure][point].as_double_tuple_or_die();
-                fig.points.push_back(Vector3D::point(coPoint[0], coPoint[1], coPoint[2]));
-                int nrLines = configuration[figure]["nrLines"].as_int_or_die();
-                for (int j = 0; j != nrLines; j++) {
-                    string line = "line";
-                    line += to_string(j);
-                    vector<int> indexLine = configuration[figure][line].as_int_tuple_or_die();
-                    Face face(indexLine);
-                    fig.faces.push_back(face);
-                }
+                Vector3D p = Vector3D::point(coPoint[0], coPoint[1], coPoint[2]);
+                fig.points.push_back(p);
+            }
+            int nrLines = configuration[figure]["nrLines"].as_int_or_die();
+            for (int j = 0; j != nrLines; j++) {
+                string line = "line";
+                line += to_string(j);
+                vector<int> indexLine = configuration[figure][line].as_int_tuple_or_die();
+                Face face(indexLine);
+                fig.faces.push_back(face);
             }
             applyTransformation(fig, transform);
             figures.push_back(fig);
