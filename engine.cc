@@ -117,7 +117,7 @@ Matrix rotateX(const double angle){
     Matrix rotationMatrix;
     rotationMatrix(2, 2) = cos(angle * pi/180);
     rotationMatrix(3, 3) = cos(angle * pi/180);
-    rotationMatrix(3, 1) = -sin(angle * pi/180);
+    rotationMatrix(3, 2) = -sin(angle * pi/180);
     rotationMatrix(2, 3) = sin(angle * pi/180);
     return rotationMatrix;
 }
@@ -193,7 +193,7 @@ Point2D doProjection(const Vector3D& point, const double d = 1){
     return p;
 }
 
-Lines2D doProjection(const Figures3D& figures, const double d = 1){
+Lines2D doProjection(const Figures3D& figures){
     Lines2D lines;
     for (auto figure : figures){
         for (auto face : figure.faces){
@@ -211,6 +211,8 @@ Lines2D doProjection(const Figures3D& figures, const double d = 1){
     }
     return lines;
 }
+
+
 
 img::EasyImage generate_image(const ini::Configuration &configuration) {
     Matrix m;
