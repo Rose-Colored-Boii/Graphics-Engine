@@ -34,7 +34,7 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/Program Files (x86)/mingw64/bin/objdump.exe")
+  set(CMAKE_OBJDUMP "C:/MinGW/bin/objdump.exe")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -50,7 +50,7 @@ file(INSTALL DESTINATION "C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics
   if(EXISTS "$ENV{DESTDIR}/C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.exe" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}/C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.exe")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "C:/Program Files (x86)/mingw64/bin/strip.exe" "$ENV{DESTDIR}/C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.exe")
+      execute_process(COMMAND "C:/MinGW/bin/strip.exe" "$ENV{DESTDIR}/C:/Users/liaml_zojvpty/CLionProjects/Computer Graphics/engine.exe")
     endif()
   endif()
 endif()

@@ -68,67 +68,67 @@ include CMakeFiles/engine.dir/flags.make
 CMakeFiles/engine.dir/easy_image.cc.obj: CMakeFiles/engine.dir/flags.make
 CMakeFiles/engine.dir/easy_image.cc.obj: ../easy_image.cc
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\cmake-build-debug-mingw\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/engine.dir/easy_image.cc.obj"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\easy_image.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\easy_image.cc"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\easy_image.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\easy_image.cc"
 
 CMakeFiles/engine.dir/easy_image.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/engine.dir/easy_image.cc.i"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\easy_image.cc" > CMakeFiles\engine.dir\easy_image.cc.i
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\easy_image.cc" > CMakeFiles\engine.dir\easy_image.cc.i
 
 CMakeFiles/engine.dir/easy_image.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/engine.dir/easy_image.cc.s"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\easy_image.cc" -o CMakeFiles\engine.dir\easy_image.cc.s
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\easy_image.cc" -o CMakeFiles\engine.dir\easy_image.cc.s
 
 CMakeFiles/engine.dir/engine.cc.obj: CMakeFiles/engine.dir/flags.make
 CMakeFiles/engine.dir/engine.cc.obj: ../engine.cc
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\cmake-build-debug-mingw\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/engine.dir/engine.cc.obj"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\engine.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\engine.cc"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\engine.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\engine.cc"
 
 CMakeFiles/engine.dir/engine.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/engine.dir/engine.cc.i"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\engine.cc" > CMakeFiles\engine.dir\engine.cc.i
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\engine.cc" > CMakeFiles\engine.dir\engine.cc.i
 
 CMakeFiles/engine.dir/engine.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/engine.dir/engine.cc.s"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\engine.cc" -o CMakeFiles\engine.dir\engine.cc.s
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\engine.cc" -o CMakeFiles\engine.dir\engine.cc.s
 
 CMakeFiles/engine.dir/ini_configuration.cc.obj: CMakeFiles/engine.dir/flags.make
 CMakeFiles/engine.dir/ini_configuration.cc.obj: ../ini_configuration.cc
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\cmake-build-debug-mingw\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/engine.dir/ini_configuration.cc.obj"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\ini_configuration.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\ini_configuration.cc"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\ini_configuration.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\ini_configuration.cc"
 
 CMakeFiles/engine.dir/ini_configuration.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/engine.dir/ini_configuration.cc.i"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\ini_configuration.cc" > CMakeFiles\engine.dir\ini_configuration.cc.i
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\ini_configuration.cc" > CMakeFiles\engine.dir\ini_configuration.cc.i
 
 CMakeFiles/engine.dir/ini_configuration.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/engine.dir/ini_configuration.cc.s"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\ini_configuration.cc" -o CMakeFiles\engine.dir\ini_configuration.cc.s
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\ini_configuration.cc" -o CMakeFiles\engine.dir\ini_configuration.cc.s
 
 CMakeFiles/engine.dir/l_parser.cc.obj: CMakeFiles/engine.dir/flags.make
 CMakeFiles/engine.dir/l_parser.cc.obj: ../l_parser.cc
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\cmake-build-debug-mingw\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/engine.dir/l_parser.cc.obj"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\l_parser.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\l_parser.cc"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\l_parser.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\l_parser.cc"
 
 CMakeFiles/engine.dir/l_parser.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/engine.dir/l_parser.cc.i"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\l_parser.cc" > CMakeFiles\engine.dir\l_parser.cc.i
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\l_parser.cc" > CMakeFiles\engine.dir\l_parser.cc.i
 
 CMakeFiles/engine.dir/l_parser.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/engine.dir/l_parser.cc.s"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\l_parser.cc" -o CMakeFiles\engine.dir\l_parser.cc.s
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\l_parser.cc" -o CMakeFiles\engine.dir\l_parser.cc.s
 
 CMakeFiles/engine.dir/vector3d.cc.obj: CMakeFiles/engine.dir/flags.make
 CMakeFiles/engine.dir/vector3d.cc.obj: ../vector3d.cc
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\cmake-build-debug-mingw\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/engine.dir/vector3d.cc.obj"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\vector3d.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\vector3d.cc"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\engine.dir\vector3d.cc.obj -c "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\vector3d.cc"
 
 CMakeFiles/engine.dir/vector3d.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/engine.dir/vector3d.cc.i"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\vector3d.cc" > CMakeFiles\engine.dir\vector3d.cc.i
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\vector3d.cc" > CMakeFiles\engine.dir\vector3d.cc.i
 
 CMakeFiles/engine.dir/vector3d.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/engine.dir/vector3d.cc.s"
-	C:\PROGRA~2\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\vector3d.cc" -o CMakeFiles\engine.dir\vector3d.cc.s
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\liaml_zojvpty\CLionProjects\Computer Graphics\vector3d.cc" -o CMakeFiles\engine.dir\vector3d.cc.s
 
 # Object files for target engine
 engine_OBJECTS = \
