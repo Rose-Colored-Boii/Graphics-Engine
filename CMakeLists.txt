@@ -19,8 +19,7 @@ set(engine_sources
 	engine.cc
 	ini_configuration.cc
         Line2D.h
-		l_parser.cc
-		l_parser.h LSystemElement.h vector3d.cc vector3d.h Figure.h)
+        LSystemElement.h vector3d.cc vector3d.h Figure.h l_parser.cc l_parser.h)
 
 ############################################################
 # Create an executable

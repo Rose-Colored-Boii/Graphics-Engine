@@ -15,4 +15,4 @@ Rules = {
 Initiator     = "X"
 Angle         = 45
 StartingAngle = 0
-Iterations    = 10
+Iterations    = 5

@@ -8,11 +8,11 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "C:/Users/liaml/CLionProjects/Graphics-Engine/easy_image.cc" "CMakeFiles/engine.dir/easy_image.cc.obj" "gcc" "CMakeFiles/engine.dir/easy_image.cc.obj.d"
-  "C:/Users/liaml/CLionProjects/Graphics-Engine/engine.cc" "CMakeFiles/engine.dir/engine.cc.obj" "gcc" "CMakeFiles/engine.dir/engine.cc.obj.d"
-  "C:/Users/liaml/CLionProjects/Graphics-Engine/ini_configuration.cc" "CMakeFiles/engine.dir/ini_configuration.cc.obj" "gcc" "CMakeFiles/engine.dir/ini_configuration.cc.obj.d"
-  "C:/Users/liaml/CLionProjects/Graphics-Engine/l_parser.cc" "CMakeFiles/engine.dir/l_parser.cc.obj" "gcc" "CMakeFiles/engine.dir/l_parser.cc.obj.d"
-  "C:/Users/liaml/CLionProjects/Graphics-Engine/vector3d.cc" "CMakeFiles/engine.dir/vector3d.cc.obj" "gcc" "CMakeFiles/engine.dir/vector3d.cc.obj.d"
+  "/home/liam/CLionProjects/Graphics-Engine/easy_image.cc" "CMakeFiles/engine.dir/easy_image.cc.o" "gcc" "CMakeFiles/engine.dir/easy_image.cc.o.d"
+  "/home/liam/CLionProjects/Graphics-Engine/engine.cc" "CMakeFiles/engine.dir/engine.cc.o" "gcc" "CMakeFiles/engine.dir/engine.cc.o.d"
+  "/home/liam/CLionProjects/Graphics-Engine/ini_configuration.cc" "CMakeFiles/engine.dir/ini_configuration.cc.o" "gcc" "CMakeFiles/engine.dir/ini_configuration.cc.o.d"
+  "/home/liam/CLionProjects/Graphics-Engine/l_parser.cc" "CMakeFiles/engine.dir/l_parser.cc.o" "gcc" "CMakeFiles/engine.dir/l_parser.cc.o.d"
+  "/home/liam/CLionProjects/Graphics-Engine/vector3d.cc" "CMakeFiles/engine.dir/vector3d.cc.o" "gcc" "CMakeFiles/engine.dir/vector3d.cc.o.d"
   )
 
 # Targets to which this target links.
