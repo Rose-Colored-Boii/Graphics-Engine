@@ -9,6 +9,8 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include "algorithm"
+#include "Lsystem3DElement.h"
 using namespace std;
 using Lines2D = vector<Line2D>;
 using Figures3D = vector<Figure>;
@@ -55,7 +57,6 @@ img::EasyImage generateLsystem(const string& fileName, const int size, const img
     LParser::LSystem2D LSystem(input);
     input.close();
     Lines2D lines;
-    double pi = 3.14159265358979323846264338327950288;
     double angle = LSystem.get_angle();
     double currAngle = LSystem.get_starting_angle();
     vector<LSystemElement> stack;
@@ -197,14 +198,39 @@ Lines2D doProjection(const Figures3D& figures){
                 points.push_back(doProjection(figure.points[index]));
             }
             for (int i = 0; i != points.size(); i++){
-                for (int j = i+1; j != points.size(); j++){
-                    Line2D line(points[i], points[j], figure.color);
+                if (i != points.size()-1) {
+                    Line2D line(points[i], points[i + 1], figure.color);
+                    lines.push_back(line);
+                }
+                else{
+                    Line2D line(points[i], points[0], figure.color);
                     lines.push_back(line);
                 }
             }
         }
     }
     return lines;
+}
+
+Figure createCube(const img::Color color){
+    vector<Vector3D> points;
+    vector<Face> faces;
+    points.push_back(Vector3D::point(1, -1, -1));
+    points.push_back(Vector3D::point(-1, 1, -1));
+    points.push_back(Vector3D::point(1, 1, 1));
+    points.push_back(Vector3D::point(-1, -1, 1));
+    points.push_back(Vector3D::point(1, 1, -1));
+    points.push_back(Vector3D::point(-1, -1, -1));
+    points.push_back(Vector3D::point(1, -1, 1));
+    points.push_back(Vector3D::point(-1, 1, 1));
+    faces.push_back(Face({0, 4, 2, 6}));
+    faces.push_back(Face({4, 1, 7, 2}));
+    faces.push_back(Face({1, 5, 3, 7}));
+    faces.push_back(Face({5, 0, 6, 3}));
+    faces.push_back(Face({6, 2, 7, 3}));
+    faces.push_back(Face({0, 5, 1, 4}));
+    Figure cube(points, faces, color);
+    return cube;
 }
 
 Figure createTetrahedron(const img::Color color){
@@ -271,11 +297,11 @@ Figure createIcosahedron(const img::Color color){
     Vector3D p1 = Vector3D::point(0, 0, sqrt(5)/2);
     points.push_back(p1);
     for (int i = 2; i != 7; i++){
-        Vector3D p = Vector3D::point(cos(((i-2)*2*pi)/2), sin(((i-2)*2*pi)/2), 0.5);
+        Vector3D p = Vector3D::point(cos((i-2)*(2*pi/5)), sin((i-2)*(2*pi/5)), 0.5);
         points.push_back(p);
     }
     for (int i = 7; i != 12; i++){
-        Vector3D p = Vector3D::point(cos(pi/5 + ((i-7)*2*pi)/5), sin(pi/5 + ((i-7)*2*pi)/5), -0.5);
+        Vector3D p = Vector3D::point(cos(pi/5 + (i-7)*(2*pi/5)), sin(pi/5 + (i-7)*(2*pi/5)), -0.5);
         points.push_back(p);
     }
     Vector3D p12 = Vector3D::point(0, 0, -sqrt(5)/2);
@@ -327,7 +353,7 @@ Figure createIcosahedron(const img::Color color){
 Figure createDodecahedron(const img::Color color){
     Figure icosahedron = createIcosahedron(color);
     vector<Vector3D> points;
-    for (int i = 0; i != 21; i++){
+    for (int i = 0; i != 20; i++){
         vector<int> index = icosahedron.faces[i].point_indexes;
         double x = (icosahedron.points[index[0]].x + icosahedron.points[index[1]].x + icosahedron.points[index[2]].x)/3;
         double y = (icosahedron.points[index[0]].y + icosahedron.points[index[1]].y + icosahedron.points[index[2]].y)/3;
@@ -365,20 +391,22 @@ Figure createDodecahedron(const img::Color color){
 
 Figure createSphere(const double radius, const int n, const img::Color color){
     Figure icosahedron = createIcosahedron(color);
-    vector<Face> faces;
+    vector<Face> faces = icosahedron.faces;
     for (int i = 0; i != n; i++){
-        for (auto face : icosahedron.faces){
+        vector<Face> tempFaces;
+        for (auto face : faces){
             Vector3D A = icosahedron.points[face.point_indexes[0]];
             Vector3D B = icosahedron.points[face.point_indexes[1]];
             Vector3D C = icosahedron.points[face.point_indexes[2]];
             icosahedron.points.push_back(Vector3D::point((A.x+B.x)/2, (A.y+B.y)/2, (A.z+B.z)/2));
             icosahedron.points.push_back(Vector3D::point((A.x+C.x)/2, (A.y+C.y)/2, (A.z+C.z)/2));
             icosahedron.points.push_back(Vector3D::point((C.x+B.x)/2, (C.y+B.y)/2, (C.z+B.z)/2));
-            faces.push_back(Face({face.point_indexes[0], (int) icosahedron.points.size()-3, (int) icosahedron.points.size()-2}));
-            faces.push_back(Face({face.point_indexes[1], (int) icosahedron.points.size()-1, (int) icosahedron.points.size()-3}));
-            faces.push_back(Face({face.point_indexes[2], (int) icosahedron.points.size()-2, (int) icosahedron.points.size()-1}));
-            faces.push_back(Face({(int) icosahedron.points.size()-3, (int) icosahedron.points.size()-1, (int) icosahedron.points.size()-2}));
+            tempFaces.push_back(Face({face.point_indexes[0], (int) icosahedron.points.size()-3, (int) icosahedron.points.size()-2}));
+            tempFaces.push_back(Face({face.point_indexes[1], (int) icosahedron.points.size()-1, (int) icosahedron.points.size()-3}));
+            tempFaces.push_back(Face({face.point_indexes[2], (int) icosahedron.points.size()-2, (int) icosahedron.points.size()-1}));
+            tempFaces.push_back(Face({(int) icosahedron.points.size()-3, (int) icosahedron.points.size()-1, (int) icosahedron.points.size()-2}));
         }
+        faces = tempFaces;
     }
     for (auto& point : icosahedron.points){
         point.normalise();
@@ -412,7 +440,7 @@ Figure createCylinder(const int n, const double h, const img::Color color){
         points.push_back(Vector3D::point(cos((2*i*pi)/n), sin((2*i*pi)/n), h));
     }
     for (int i = 0; i < n; i++){
-        faces.push_back(Face({i, (i+1)%n, i+n+1, i+n}));
+        faces.push_back(Face({i, (i+1)%n, (i+1)%n+n, i+n}));
     }
     vector<int> f1;
     vector<int> f2;
@@ -432,18 +460,100 @@ Figure createDonut(const double r, const double R, const int n, const int m, con
     vector<Face> faces;
     for (int i = 0; i != n; i++){
         for (int j = 0; j != m; j++){
-            double u = 2*i*pi/n;
-            double v = 2*j*pi/m;
+            double u = (2*i*pi)/n;
+            double v = (2*j*pi)/m;
             points.push_back(Vector3D::point((R+r*cos(v))*cos(u), (R+r*cos(v))*sin(u), r*sin(v)));
         }
     }
     for (int i = 0; i != n; i++){
         for (int j = 0; j != m; j++){
-            faces.push_back(Face({i+j, ((i+1)%n)+j, ((i+1)%n)+((j+1)%n), i+((j+1)%m)}));
+            faces.push_back(Face({i*m+j, (((i+1))%n)*m+j, (((i+1))%n)*m+((j+1)%m), i*m+((j+1)%m)}));
         }
     }
     return Figure(points, faces, color);
 }
+
+Figure generate3DLsystem(const string& fileName, const img::Color color){
+    ifstream input(fileName);
+    LParser::LSystem3D LSystem(input);
+    input.close();
+    Lines2D lines;
+    double angle = LSystem.get_angle();
+    Vector3D p1 = Vector3D::point(0, 0, 0);
+    Vector3D p2 = Vector3D::point(0, 0, 0);
+    Vector3D H = Vector3D::vector(1, 0, 0);
+    Vector3D L = Vector3D::vector(0, 1, 0);
+    Vector3D U = Vector3D::vector(0, 0, 1);
+    vector<Vector3D> points;
+    vector<Face> faces;
+    vector<Lsystem3DElement> stack;
+    string drawString = LSystem.get_initiator();
+    for (int iteration = 0; iteration != LSystem.get_nr_iterations(); iteration++){
+        string newDrawString;
+        for (auto oldchar : drawString){
+            if (LSystem.get_alphabet().find(oldchar) != LSystem.get_alphabet().end()){
+                newDrawString += LSystem.get_replacement(oldchar);
+            }
+            else{
+                newDrawString += oldchar;
+            }
+        }
+        drawString = newDrawString;
+    }
+    for (auto character : drawString){
+        if (character == '+'){
+            H = H*cos((angle*pi)/180) + L*sin((angle*pi)/180);
+            L = -H*sin((angle*pi)/180) + L*cos((angle*pi)/180);
+        }
+        else if (character == '-'){
+            H = H*cos((-angle*pi)/180) + L*sin((-angle*pi)/180);
+            L = -H*sin((-angle*pi)/180) + L*cos((-angle*pi)/180);
+        }
+        else if (character == '^'){
+            H = H*cos((angle*pi)/180) + U*sin((angle*pi)/180);
+            U = -H*sin((angle*pi)/180) + U*cos((angle*pi)/180);
+        }
+        else if (character == '&'){
+            H = H*cos((-angle*pi)/180) + U*sin((-angle*pi)/180);
+            U = -H*sin((-angle*pi)/180) + U*cos((-angle*pi)/180);
+        }
+        else if (character == '\\'){
+            L = L*cos((angle*pi)/180) - U*sin((angle*pi)/180);
+            U = L*sin((angle*pi)/180) + U*cos((angle*pi)/180);
+        }
+        else if (character == '/'){
+            L = L*cos((-angle*pi)/180) - U*sin((-angle*pi)/180);
+            U = L*sin((-angle*pi)/180) + U*cos((-angle*pi)/180);
+        }
+        else if (character == '|'){
+            H = -H;
+            L = -L;
+        }
+        else if (character == '('){
+            Lsystem3DElement element(p2, H, L, U);
+            stack.push_back(element);
+        }
+        else if (character == ')'){
+            p1 = stack[stack.size()-1].position;
+            p2 = stack[stack.size()-1].position;
+            H = stack[stack.size()-1].H;
+            L = stack[stack.size()-1].L;
+            U = stack[stack.size()-1].U;
+            stack.pop_back();
+        }
+        else {
+            p2 = Vector3D::point(p2.x+H.x, p2.y+H.y, p2.z+H.z);
+            if (LSystem.draw(character)) {
+                points.push_back(p1);
+                points.push_back(p2);
+                faces.push_back(Face({(int) points.size()-1, (int) points.size()-2}));
+            }
+            p1 = p2;
+        }
+    }
+    return Figure(points, faces, color);
+}
+
 
 img::EasyImage generate_image(const ini::Configuration &configuration) {
     Matrix m;
@@ -504,22 +614,22 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
                     fig.faces.push_back(face);
                 }
             }
-            if (figType == "Cube"){
-                continue;
+            else if (figType == "Cube"){
+                fig = createCube((figColor));
             }
-            if (figType == "Tetrahedron"){
+            else if (figType == "Tetrahedron"){
                 fig = createTetrahedron(figColor);
             }
-            if (figType == "Octahedron"){
+            else if (figType == "Octahedron"){
                 fig = createOctahedron(figColor);
             }
-            if (figType == "Icosahedron"){
+            else if (figType == "Icosahedron"){
                 fig = createIcosahedron(figColor);
             }
-            if (figType == "Dodecahedron"){
+            else if (figType == "Dodecahedron"){
                 fig = createDodecahedron(figColor);
             }
-            if (figType == "Cylinder" or figType == "Cone"){
+            else if (figType == "Cylinder" or figType == "Cone"){
                 int n = configuration[figure]["n"].as_int_or_die();
                 double h = configuration[figure]["height"].as_double_or_die();
                 if (figType == "Cylinder"){
@@ -529,16 +639,20 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
                     fig = createCone(n, h, figColor);
                 }
             }
-            if (figType == "Sphere"){
+            else if (figType == "Sphere"){
                 int n = configuration[figure]["n"].as_int_or_die();
                 fig = createSphere(69, n, figColor);
             }
-            if (figType == "Torus"){
+            else if (figType == "Torus"){
                 int n = configuration[figure]["n"].as_int_or_die();
                 double R = configuration[figure]["R"].as_double_or_die();
                 double radius = configuration[figure]["r"].as_double_or_die();
                 int temp = configuration[figure]["m"].as_int_or_die();
                 fig = createDonut(radius, R, n, temp, figColor);
+            }
+            else if (figType == "3DLSystem"){
+                string filename = configuration[figure]["inputfile"].as_string_or_die();
+                fig = generate3DLsystem(filename, figColor);
             }
             applyTransformation(fig, transform);
             figures.push_back(fig);

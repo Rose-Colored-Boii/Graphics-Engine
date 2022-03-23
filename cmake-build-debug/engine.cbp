@@ -131,6 +131,9 @@
 		<Unit filename="/home/liam/CLionProjects/Graphics-Engine/Line2D.h">
 			<Option target="engine"/>
 		</Unit>
+		<Unit filename="/home/liam/CLionProjects/Graphics-Engine/Lsystem3DElement.h">
+			<Option target="engine"/>
+		</Unit>
 		<Unit filename="/home/liam/CLionProjects/Graphics-Engine/easy_image.cc">
 			<Option target="engine"/>
 		</Unit>

@@ -19,11 +19,11 @@ set(engine_sources
 	engine.cc
 	ini_configuration.cc
         Line2D.h
-        LSystemElement.h vector3d.cc vector3d.h Figure.h l_parser.cc l_parser.h)
+        LSystemElement.h vector3d.cc vector3d.h Figure.h l_parser.cc l_parser.h Lsystem3DElement.h)
 
 ############################################################
 # Create an executable
 ############################################################
 set(exe_name "engine")
-add_executable( ${exe_name} ${engine_sources})
+add_executable( ${exe_name} ${engine_sources} Lsystem3DElement.h)
 install( TARGETS ${exe_name} DESTINATION ${PROJECT_SOURCE_DIR}/ )

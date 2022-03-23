@@ -5,13 +5,14 @@
 #ifndef ENGINE_LSYSTEMELEMENT_H
 #define ENGINE_LSYSTEMELEMENT_H
 #include "Line2D.h"
+#include "vector3d.h"
 
 class LSystemElement {
 private:
     Point2D position;
     double angle;
 public:
-    LSystemElement(Point2D position, double angle){
+    LSystemElement(Point2D position, double angle) {
         this->position = position;
         this->angle = angle;
     }
