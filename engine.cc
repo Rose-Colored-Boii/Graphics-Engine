@@ -40,7 +40,7 @@ img::EasyImage draw2DLines(const Lines2D& lines, const int size, const img::Colo
     double yRange = yMax - yMin;
     double imageX = size*(xRange)/max(xRange, yRange);
     double imageY = size*(yRange)/max(xRange, yRange);
-    img::EasyImage image(imageX, imageY, bgColor);
+    img::EasyImage image(lround(imageX), lround(imageY), bgColor);
     double d = 0.95*(imageX)/xRange;
     double DCx = d*(xMin + xMax)/2;
     double DCy = d*(yMin + yMax)/2;
