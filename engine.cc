@@ -47,7 +47,7 @@ img::EasyImage draw2DLines(const Lines2D& lines, const int size, const img::Colo
     double dy = (imageY/2) - DCy;
     for (auto line : lines){
         img::Color color(line.getColor().red, line.getColor().green, line.getColor().blue);
-        image.draw_line(round(line.getP1().getX()*d + dx), round((line.getP1().getY()*d + dy)), round((line.getP2().getX()*d + dx)), round((line.getP2().getY()*d + dy)), color);
+        image.draw_line(lround(line.getP1().getX()*d + dx), lround((line.getP1().getY()*d + dy)), lround((line.getP2().getX()*d + dx)), lround((line.getP2().getY()*d + dy)), color);
     }
     return image;
 }
@@ -501,29 +501,32 @@ Figure generate3DLsystem(const string& fileName, const img::Color color){
         drawString = newDrawString;
     }
     for (auto character : drawString){
+        Vector3D tempH = H;
+        Vector3D tempL = L;
+        Vector3D tempU = U;
         if (character == '+'){
-            H = H*cos((angle*pi)/180) + L*sin((angle*pi)/180);
-            L = -H*sin((angle*pi)/180) + L*cos((angle*pi)/180);
+            H = tempH*cos((angle*pi)/180) + tempL*sin((angle*pi)/180);
+            L = -tempH*sin((angle*pi)/180) + tempL*cos((angle*pi)/180);
         }
         else if (character == '-'){
-            H = H*cos((-angle*pi)/180) + L*sin((-angle*pi)/180);
-            L = -H*sin((-angle*pi)/180) + L*cos((-angle*pi)/180);
+            H = tempH*cos((-angle*pi)/180) + tempL*sin((-angle*pi)/180);
+            L = -tempH*sin((-angle*pi)/180) + tempL*cos((-angle*pi)/180);
         }
         else if (character == '^'){
-            H = H*cos((angle*pi)/180) + U*sin((angle*pi)/180);
-            U = -H*sin((angle*pi)/180) + U*cos((angle*pi)/180);
+            H = tempH*cos((angle*pi)/180) + tempU*sin((angle*pi)/180);
+            U = -tempH*sin((angle*pi)/180) + tempU*cos((angle*pi)/180);
         }
         else if (character == '&'){
-            H = H*cos((-angle*pi)/180) + U*sin((-angle*pi)/180);
-            U = -H*sin((-angle*pi)/180) + U*cos((-angle*pi)/180);
+            H = tempH*cos((-angle*pi)/180) + tempU*sin((-angle*pi)/180);
+            U = -tempH*sin((-angle*pi)/180) + tempU*cos((-angle*pi)/180);
         }
         else if (character == '\\'){
-            L = L*cos((angle*pi)/180) - U*sin((angle*pi)/180);
-            U = L*sin((angle*pi)/180) + U*cos((angle*pi)/180);
+            L = tempL*cos((angle*pi)/180) - tempU*sin((angle*pi)/180);
+            U = tempL*sin((angle*pi)/180) + tempU*cos((angle*pi)/180);
         }
         else if (character == '/'){
-            L = L*cos((-angle*pi)/180) - U*sin((-angle*pi)/180);
-            U = L*sin((-angle*pi)/180) + U*cos((-angle*pi)/180);
+            L = tempL*cos((-angle*pi)/180) - tempU*sin((-angle*pi)/180);
+            U = tempL*sin((-angle*pi)/180) + tempU*cos((-angle*pi)/180);
         }
         else if (character == '|'){
             H = -H;
@@ -546,12 +549,12 @@ Figure generate3DLsystem(const string& fileName, const img::Color color){
             if (LSystem.draw(character)) {
                 points.push_back(p1);
                 points.push_back(p2);
-                faces.push_back(Face({(int) points.size()-1, (int) points.size()-2}));
+                faces.push_back(Face({(int) points.size()-2, (int) points.size()-1}));
             }
             p1 = p2;
         }
     }
-    return Figure(points, faces, color);
+    return {points, faces, color};
 }
 
 
