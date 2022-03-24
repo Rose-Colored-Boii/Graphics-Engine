@@ -10,6 +10,7 @@
 #include <string>
 #include <cmath>
 #include "algorithm"
+#include "ZBuffer.h"
 #include "Lsystem3DElement.h"
 using namespace std;
 using Lines2D = vector<Line2D>;
@@ -194,16 +195,22 @@ Lines2D doProjection(const Figures3D& figures){
     for (auto figure : figures){
         for (auto face : figure.faces){
             vector<Point2D> points;
+            vector<double> zCo;
             for (auto index : face.point_indexes){
                 points.push_back(doProjection(figure.points[index]));
+                zCo.push_back(figure.points[index].z);
             }
             for (int i = 0; i != points.size(); i++){
                 if (i != points.size()-1) {
                     Line2D line(points[i], points[i + 1], figure.color);
+                    line.setZ1(zCo[i]);
+                    line.setZ2(zCo[i+1]);
                     lines.push_back(line);
                 }
                 else{
                     Line2D line(points[i], points[0], figure.color);
+                    line.setZ1(zCo[i]);
+                    line.setZ2(zCo[0]);
                     lines.push_back(line);
                 }
             }
@@ -557,6 +564,55 @@ Figure generate3DLsystem(const string& fileName, const img::Color color){
     return {points, faces, color};
 }
 
+void draw_zbuf_line(ZBuffer& zBuffer, img::EasyImage image, unsigned int x0, unsigned int y0, double z0, unsigned int x1, unsigned int y1, double z1, const img::Color& color){
+    if (x0 == x1)
+    {
+        //special case for x0 == x1
+        for (unsigned int i = std::min(y0, y1); i <= std::max(y0, y1); i++)
+        {
+            image(x0, i) = color;
+        }
+    }
+    else if (y0 == y1)
+    {
+        //special case for y0 == y1
+        for (unsigned int i = std::min(x0, x1); i <= std::max(x0, x1); i++)
+        {
+            image(i, y0) = color;
+        }
+    }
+    else
+    {
+        if (x0 > x1)
+        {
+            //flip points if x1>x0: we want x0 to have the lowest value
+            std::swap(x0, x1);
+            std::swap(y0, y1);
+        }
+        double m = ((double) y1 - (double) y0) / ((double) x1 - (double) x0);
+        if (-1.0 <= m && m <= 1.0)
+        {
+            for (unsigned int i = 0; i <= (x1 - x0); i++)
+            {
+                image(x0 + i, (unsigned int) round(y0 + m * i)) = color;
+            }
+        }
+        else if (m > 1.0)
+        {
+            for (unsigned int i = 0; i <= (y1 - y0); i++)
+            {
+                image((unsigned int) round(x0 + (i / m)), y0 + i) = color;
+            }
+        }
+        else if (m < -1.0)
+        {
+            for (unsigned int i = 0; i <= (y0 - y1); i++)
+            {
+                image((unsigned int) round(x0 - (i / m)), y0 - i) = color;
+            }
+        }
+    }
+}
 
 img::EasyImage generate_image(const ini::Configuration &configuration) {
     Matrix m;

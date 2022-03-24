@@ -32,6 +32,8 @@ private:
     Point2D p1;
     Point2D p2;
     img::Color color;
+    double z1;
+    double z2;
 public:
     Line2D(Point2D p1, Point2D p2, img::Color color){
         this->p1 = p1;
@@ -47,6 +49,30 @@ public:
     }
     const img::Color &getColor() const {
         return color;
+    }
+
+    void setP1(const Point2D &p1) {
+        Line2D::p1 = p1;
+    }
+
+    void setP2(const Point2D &p2) {
+        Line2D::p2 = p2;
+    }
+
+    double getZ1() const {
+        return z1;
+    }
+
+    void setZ1(double z1) {
+        Line2D::z1 = z1;
+    }
+
+    double getZ2() const {
+        return z2;
+    }
+
+    void setZ2(double z2) {
+        Line2D::z2 = z2;
     }
 };
 
