@@ -7,6 +7,7 @@
 #include "Figure.h"
 #include <fstream>
 #include <iostream>
+#include "limits"
 #include <string>
 #include <cmath>
 #include "algorithm"
@@ -17,48 +18,12 @@ using Lines2D = vector<Line2D>;
 using Figures3D = vector<Figure>;
 constexpr double pi = 3.14159265358979323846264338327950288;
 
-img::EasyImage draw2DLines(const Lines2D& lines, const int size, const img::Color& bgColor = img::Color()){
-    double xMin = min(lines[0].getP1().getX(), lines[0].getP2().getX());
-    double xMax = max(lines[0].getP1().getX(), lines[0].getP2().getX());
-    double yMin = min(lines[0].getP1().getY(), lines[0].getP2().getY());
-    double yMax = max(lines[0].getP1().getY(), lines[0].getP2().getY());
-    for (const auto& line : lines){
-        double maxX = max(line.getP1().getX(), line.getP2().getX());
-        double minX = min(line.getP1().getX(), line.getP2().getX());
-        double maxY = max(line.getP1().getY(), line.getP2().getY());
-        double minY = min(line.getP1().getY(), line.getP2().getY());
-        if (minX < xMin)
-            xMin = minX;
-        if (maxX > xMax)
-            xMax = maxX;
-        if (minY < yMin)
-            yMin = minY;
-        if (maxY > yMax)
-            yMax = maxY;
-    }
-    double xRange = xMax - xMin;
-    double yRange = yMax - yMin;
-    double imageX = size*(xRange)/max(xRange, yRange);
-    double imageY = size*(yRange)/max(xRange, yRange);
-    img::EasyImage image(lround(imageX), lround(imageY), bgColor);
-    double d = 0.95*(imageX)/xRange;
-    double DCx = d*(xMin + xMax)/2;
-    double DCy = d*(yMin + yMax)/2;
-    double dx = (imageX/2) - DCx;
-    double dy = (imageY/2) - DCy;
-    for (const auto& line : lines){
-        img::Color color(line.getColor().red, line.getColor().green, line.getColor().blue);
-        image.draw_line(lround(line.getP1().getX()*d + dx), lround((line.getP1().getY()*d + dy)), lround((line.getP2().getX()*d + dx)), lround((line.getP2().getY()*d + dy)), color);
-    }
-    return image;
-}
-
 void draw_zbuf_line(ZBuffer& zBuffer, img::EasyImage& image, unsigned int x0, unsigned int y0, double z0, unsigned int x1, unsigned int y1, double z1, const img::Color& color){
     int a = 0;
     if (x0 == x1 and y0 == y1){
         double z = 1/z0;
-        if (z < zBuffer.matrix[y0][x0]){
-            zBuffer.matrix[y0][x0] = z;
+        if (z < zBuffer.matrix[x0][y0]){
+            zBuffer.matrix[x0][y0] = z;
             image(x0, y0) = color;
         }
     }
@@ -73,32 +38,45 @@ void draw_zbuf_line(ZBuffer& zBuffer, img::EasyImage& image, unsigned int x0, un
         {
             double z = 0;
             if (y0 < y1){
-                z = ((double) j/(a-1))/z0 + (1-((double) j/(a-1)))/z1;
+                z = (j/(double) (a-1))/z1 + (1-(j/(double) (a-1)))/z0;
             }
             else{
-                z = ((double) j/(a-1))/z1 + (1-((double) j/(a-1)))/z0;
+                z = (j/(double) (a-1))/z0 + (1-(j/(double) (a-1)))/z1;
             }
-            if (z < zBuffer.matrix[i][x0]){
-                zBuffer.matrix[i][x0] = z;
+            if (z < zBuffer.matrix[x0][i]){
+                zBuffer.matrix[x0][i] = z;
                 image(x0, i) = color;
             }
             if (j == 0){
                 if (y0 < y1){
-                    cout << boolalpha << (z == (double) 1/z1);
+                    if (z != 1/z0){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
                 else{
-                    cout << boolalpha << (z == (double) 1/z0);
+                    if (z != 1/z1){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
             }
             if (j == a-1){
                 if (y0 < y1){
-                    cout << boolalpha << (z == (double) 1/z0);
+                    if (z != 1/z1){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 } else{
-                    cout << boolalpha << (z == (double) 1/z1);
+                    if (z != 1/z0){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
             }
-            if (j > a){
-                cout << "ERROR" << endl;
+            if (j > a-1){
+                cerr << "pain" << endl;
+                exit(1);
             }
             j++;
         }
@@ -115,32 +93,45 @@ void draw_zbuf_line(ZBuffer& zBuffer, img::EasyImage& image, unsigned int x0, un
         {
             double z = 0;
             if (x0 < x1){
-                z = ((double) j/(a-1))/z0 + (1-((double) j/(a-1)))/z1;
+                z = (j/(double) (a-1))/z1 + (1-(j/(double) (a-1)))/z0;
             }
             else{
-                z = ((double) j/(a-1))/z1 + (1-((double) j/(a-1)))/z0;
+                z = (j/(double) (a-1))/z0 + (1-(j/(double) (a-1)))/z1;
             }
-            if (z < zBuffer.matrix[y0][i]) {
-                zBuffer.matrix[y0][i] = z;
+            if (z < zBuffer.matrix[i][y0]) {
+                zBuffer.matrix[i][y0] = z;
                 image(i, y0) = color;
             }
             if (j == 0){
                 if (x0 < x1){
-                    cout << boolalpha << (z == 1/z1);
+                    if (z != 1/z0){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
                 else{
-                    cout << boolalpha << (z == 1/z0);
+                    if (z != 1/z1){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
             }
             if (j == a-1){
                 if (x0 < x1){
-                    cout << boolalpha << (z == 1/z0);
+                    if (z != 1/z1){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 } else{
-                    cout << boolalpha << (z == 1/z1);
+                    if (z != 1/z0){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
             }
-            if (j > a){
-                cout << "ERROR" << endl;
+            if (j > a-1){
+                cerr << "pain" << endl;
+                exit(1);
             }
             j++;
         }
@@ -164,19 +155,26 @@ void draw_zbuf_line(ZBuffer& zBuffer, img::EasyImage& image, unsigned int x0, un
             int j = 0;
             for (unsigned int i = 0; i <= (x1 - x0); i++)
             {
-                double z = ((double) j/(a-1))/z0 + (1-((double) j/(a-1)))/z1;
-                if (z < zBuffer.matrix[(unsigned int) round(y0+m*i)][x0+i]) {
-                    zBuffer.matrix[(unsigned int) round(y0+m*i)][x0+i] = z;
+                double z = (j/(double) (a-1))/z1 + (1-(j/(double) (a-1)))/z0;
+                if (z < zBuffer.matrix[x0+i][lround(y0+m*i)]) {
+                    zBuffer.matrix[x0+i][lround(y0+m*i)] = z;
                     image(x0 + i, (unsigned int) round(y0 + m * i)) = color;
                 }
                 if (j == 0){
-                    cout << boolalpha << (z == 1/z1);
+                    if (z != 1/z0){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
                 if (j == a-1){
-                    cout << boolalpha << (z == 1/z0);
+                    if (z != 1/z1){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
-                if (j > a){
-                    cout << "ERROR" << endl;
+                if (j > a-1){
+                    cerr << "pain" << endl;
+                    exit(1);
                 }
                 j++;
             }
@@ -190,19 +188,26 @@ void draw_zbuf_line(ZBuffer& zBuffer, img::EasyImage& image, unsigned int x0, un
             int j = 0;
             for (unsigned int i = 0; i <= (y1 - y0); i++)
             {
-                double z = ((double) j/(a-1))/z0 + (1-((double) j/(a-1)))/z1;
-                if (z < zBuffer.matrix[y0 + i][(unsigned int) round(x0 + (i / m))]) {
-                    zBuffer.matrix[y0 + i][(unsigned int) round(x0 + (i / m))] = z;
+                double z = (j/(double) (a-1))/z1 + (1-(j/(double) (a-1)))/z0;
+                if (z < zBuffer.matrix[lround(x0 + (i / m))][y0+i]) {
+                    zBuffer.matrix[lround(x0 + (i / m))][y0+i] = z;
                     image((unsigned int) round(x0 + (i / m)), y0 + i) = color;
                 }
                 if (j == 0){
-                    cout << boolalpha << (z == 1/z1);
+                    if (z != 1/z0){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
                 if (j == a-1){
-                    cout << boolalpha << (z == 1/z0);
+                    if (z != 1/z1){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
-                if (j > a){
-                    cout << "ERROR" << endl;
+                if (j > a-1){
+                    cerr << "pain" << endl;
+                    exit(1);
                 }
                 j++;
             }
@@ -216,19 +221,26 @@ void draw_zbuf_line(ZBuffer& zBuffer, img::EasyImage& image, unsigned int x0, un
             int j = 0;
             for (unsigned int i = 0; i <= (y0 - y1); i++)
             {
-                double z = ((double) j/(a-1))/z0 + (1-((double) j/(a-1)))/z1;
-                if (z < zBuffer.matrix[y0 - i][(unsigned int) round(x0 - (i / m))]) {
-                    zBuffer.matrix[y0 - i][(unsigned int) round(x0 - (i / m))] = z;
+                double z = (j/(double) (a-1))/z1 + (1-(j/(double) (a-1)))/z0;
+                if (z < zBuffer.matrix[lround(x0 - (i / m))][y0-i]) {
+                    zBuffer.matrix[lround(x0 - (i / m))][y0-i] = z;
                     image((unsigned int) round(x0 - (i / m)), y0 - i) = color;
                 }
                 if (j == 0){
-                    cout << boolalpha << (z == 1/z1);
+                    if (z != 1/z0){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
                 if (j == a-1){
-                    cout << boolalpha << (z == 1/z0);
+                    if (z != 1/z1){
+                        cerr << "pain" << endl;
+                        exit(1);
+                    }
                 }
-                if (j > a){
-                    cout << "ERROR" << endl;
+                if (j > a-1){
+                    cerr << "pain" << endl;
+                    exit(1);
                 }
                 j++;
             }
@@ -236,7 +248,57 @@ void draw_zbuf_line(ZBuffer& zBuffer, img::EasyImage& image, unsigned int x0, un
     }
 }
 
-img::EasyImage draw2DZbuffLines(const Lines2D& lines, const int size, const img::Color& bgColor = img::Color()){
+void draw_zbuf_line(ZBuffer& zBuffer, img::EasyImage& image, const unsigned int x0, const unsigned int x1, const unsigned int y, const double xG, const double yG, const double zG,
+                    const double dzdx, const double dzdy, const img::Color& color){
+    for (unsigned int i = x0; i <= x1; i++){
+        double z = 1.0001*zG + (i-xG)*dzdx + (y-yG)*dzdy;
+        if (z < zBuffer.matrix[i][y]){
+            zBuffer.matrix[i][y] = z;
+            image(i, y) = color;
+        }
+    }
+}
+
+void draw_zbuf_triag(ZBuffer& zBuffer, img::EasyImage& image, const Vector3D& A, const Vector3D& B, const Vector3D& C, double d, double dx, double dy, img::Color& color){
+    Point2D newA((d*A.x)/(-A.z) + dx, (d*A.y)/(-A.z) + dy);
+    Point2D newB((d*B.x)/(-B.z) + dx, (d*B.y)/(-B.z) + dy);
+    Point2D newC((d*C.x)/(-C.z) + dx, (d*C.y)/(-C.z) + dy);
+    Point2D G((newA.getX()+newB.getX()+newC.getX())/3, (newA.getY()+newB.getY()+newC.getY())/3);
+    double zG = 1/(3*A.z)+1/(3*B.z)+1/(3*C.z);
+    Vector3D u = B-A;
+    Vector3D v = C-A;
+    double w1 = u.y*v.z - u.z*v.y;
+    double w2 = u.z*v.x - u.x*v.z;
+    double w3 = u.x*v.y - u.y*v.x;
+    double k = w1*A.x + w2*A.y + w3*A.z;
+    double dzdx = w1/(-d*k);
+    double dzdy = w2/(-d*k);
+    int yMin = lround(min(newA.getY(), min(newB.getY(), newC.getY()))+0.5);
+    int yMax = lround(max(newA.getY(), max(newB.getY(), newC.getY()))-0.5);
+    vector<Point2D> points = {newA, newB, newC};
+    for (int i = yMin; i <= yMax; i++){
+        double x1 = numeric_limits<double>::infinity();
+        double x2 = numeric_limits<double>::infinity();
+        double x3 = numeric_limits<double>::infinity();
+        double x4 = -numeric_limits<double>::infinity();
+        double x5 = -numeric_limits<double>::infinity();
+        double x6 = -numeric_limits<double>::infinity();
+        if ((i-points[0].getY())*(i-points[1].getY()) <= 0){
+            x1 = x4 = points[1].getX() + (points[0].getX()-points[1].getX())*((i-points[1].getY())/(points[0].getY()-points[1].getY()));
+        }
+        if ((i-points[1].getY())*(i-points[2].getY()) <= 0){
+            x2 = x5 = points[2].getX() + (points[1].getX()-points[2].getX())*((i-points[2].getY())/(points[1].getY()-points[2].getY()));
+        }
+        if ((i-points[0].getY())*(i-points[2].getY()) <= 0){
+            x3 = x6 = points[2].getX() + (points[0].getX()-points[2].getX())*((i-points[2].getY())/(points[0].getY()-points[2].getY()));
+        }
+        int xL = lround(min(x1, min(x2, x3))+0.5);
+        int xR = lround(max(x4, max(x5, x6))-0.5);
+        draw_zbuf_line(zBuffer, image, xL, xR, i, G.getX(), G.getY(), zG, dzdx, dzdy, color);
+    }
+}
+
+img::EasyImage draw2DLines(const Figures3D& figs, const Lines2D& lines, const int size, const string& type, const img::Color& bgColor = img::Color()){
     double xMin = min(lines[0].getP1().getX(), lines[0].getP2().getX());
     double xMax = max(lines[0].getP1().getX(), lines[0].getP2().getX());
     double yMin = min(lines[0].getP1().getY(), lines[0].getP2().getY());
@@ -266,9 +328,26 @@ img::EasyImage draw2DZbuffLines(const Lines2D& lines, const int size, const img:
     double DCy = d*(yMin + yMax)/2;
     double dx = (imageX/2) - DCx;
     double dy = (imageY/2) - DCy;
-    for (const auto& line : lines){
-        img::Color color(line.getColor().red, line.getColor().green, line.getColor().blue);
-        draw_zbuf_line(zBuffer, image, lround(line.getP1().getX()*d + dx), lround((line.getP1().getY()*d + dy)), line.getZ1(), lround((line.getP2().getX()*d + dx)), lround((line.getP2().getY()*d + dy)), line.getZ2(), color);
+    if (type == "ZBuffering"){
+        for (auto fig : figs){
+            for (auto face : fig.faces){
+                draw_zbuf_triag(zBuffer, image, fig.points[face.point_indexes[0]], fig.points[face.point_indexes[1]], fig.points[face.point_indexes[2]], d, dx, dy, fig.color);
+            }
+        }
+    }
+    else {
+        for (const auto &line: lines) {
+            img::Color color(line.getColor().red, line.getColor().green, line.getColor().blue);
+            if (type == "ZBufferedWireframe") {
+                draw_zbuf_line(zBuffer, image, lround(line.getP1().getX() * d + dx),
+                               lround((line.getP1().getY() * d + dy)), line.getZ1(),
+                               lround((line.getP2().getX() * d + dx)), lround((line.getP2().getY() * d + dy)),
+                               line.getZ2(), color);
+            } else {
+                image.draw_line(lround(line.getP1().getX() * d + dx), lround((line.getP1().getY() * d + dy)),
+                                lround((line.getP2().getX() * d + dx)), lround((line.getP2().getY() * d + dy)), color);
+            }
+        }
     }
     return image;
 }
@@ -323,7 +402,7 @@ img::EasyImage generateLsystem(const string& fileName, const int size, const img
             p1 = p2;
         }
     }
-    return draw2DLines(lines, size, bgColor);
+    return draw2DLines({}, lines, size, "", bgColor);
 }
 
 Matrix scaleFigure(const double scaleFactor){
@@ -399,7 +478,6 @@ Matrix eyeMatrix(const double theta, const double phi, const double r){
     transformationMatrix(3, 2) = sin(phi);
     transformationMatrix(3, 3) = cos(phi);
     transformationMatrix(4, 3) = -r;
-    transformationMatrix(4, 4) = 1;
     return transformationMatrix;
 }
 
@@ -784,6 +862,18 @@ Figure generate3DLsystem(const string& fileName, const img::Color& color){
     return {points, faces, color};
 }
 
+vector<Face> triangulate(const Face& face){
+    vector<Face> faces;
+    for (int i = 1; i < face.point_indexes.size()-1; i++){
+        vector<int> indexes;
+        indexes.push_back(face.point_indexes[0]);
+        indexes.push_back(face.point_indexes[i]);
+        indexes.push_back(face.point_indexes[i+1]);
+        faces.push_back(Face(indexes));
+    }
+    return faces;
+}
+
 img::EasyImage generate_image(const ini::Configuration &configuration) {
     Matrix m;
     string type = configuration["General"]["type"].as_string_or_die();
@@ -796,7 +886,7 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
         img::Color lineColor(lineColorTuple[0]*255, lineColorTuple[1]*255, lineColorTuple[2]*255);
         return generateLsystem(LSystem, size, bgColor, lineColor);
     }
-    if (type == "Wireframe" or type == "ZBufferedWireframe"){
+    else {
         Matrix transform;
         vector<double> eye = configuration["General"]["eye"].as_double_tuple_or_die();
         Vector3D eyeVector = Vector3D::point(eye[0], eye[1], eye[2]);
@@ -883,15 +973,21 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
                 string filename = configuration[figure]["inputfile"].as_string_or_die();
                 fig = generate3DLsystem(filename, figColor);
             }
+            if (type == "ZBuffering" and figType != "LineDrawing" and figType != "3DLSystem"){
+                vector<Face> faces;
+                for (const auto& face : fig.faces){
+                    for (const auto& f : triangulate(face)){
+                        faces.push_back(f);
+                    }
+                }
+                fig.faces = faces;
+            }
             applyTransformation(fig, transform);
             figures.push_back(fig);
         }
         applyTransformation(figures, eyeMat);
         Lines2D lines = doProjection(figures);
-        if (type == "ZBufferedWireframe"){
-            return draw2DZbuffLines(lines, size, bgColor);
-        }
-        return draw2DLines(lines, size, bgColor);
+        return draw2DLines(figures, lines, size, type, bgColor);
     }
     return {};
 }

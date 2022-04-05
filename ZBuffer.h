@@ -13,9 +13,9 @@ public:
     vector<vector<double>> matrix;
 
     ZBuffer(const int width, const int height){
-        for (int i = 0; i < height; i++){
-            matrix.push_back(vector<double>(width));
-            for (int j = 0; j < width; j++){
+        for (int i = 0; i < width; i++){
+            matrix.push_back(vector<double>(height));
+            for (int j = 0; j < height; j++){
                 matrix[i][j] = numeric_limits<double>::infinity();
             }
         }
