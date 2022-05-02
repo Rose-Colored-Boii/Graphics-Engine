@@ -147,6 +147,8 @@ CMakeFiles/engine.dir/engine.cc.o: \
  /usr/include/c++/11/bits/basic_ios.tcc \
  /usr/include/c++/11/bits/ostream.tcc /usr/include/c++/11/istream \
  /usr/include/c++/11/bits/istream.tcc \
+ /home/liam/CLionProjects/Graphics-Engine/Light.h \
+ /home/liam/CLionProjects/Graphics-Engine/vector3d.h \
  /home/liam/CLionProjects/Graphics-Engine/ini_configuration.h \
  /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \
  /usr/include/c++/11/ext/aligned_buffer.h \
@@ -161,7 +163,6 @@ CMakeFiles/engine.dir/engine.cc.o: \
  /usr/include/c++/11/set /usr/include/c++/11/bits/stl_set.h \
  /usr/include/c++/11/bits/stl_multiset.h \
  /home/liam/CLionProjects/Graphics-Engine/LSystemElement.h \
- /home/liam/CLionProjects/Graphics-Engine/vector3d.h \
  /home/liam/CLionProjects/Graphics-Engine/Figure.h \
  /usr/include/c++/11/fstream /usr/include/c++/11/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \

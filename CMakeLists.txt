@@ -9,20 +9,20 @@ project(engine)
 set(OWN_GXX_FLAGS "-std=c++14")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${OWN_GXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OWN_GXX_FLAGS}")
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OWN_GXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OWN_GXX_FLAGS}")
 
 ############################################################
 # List all sources
 ############################################################
 set(engine_sources
-	easy_image.cc
+        easy_image.cc
         ini_configuration.cc
         Line2D.h
-        LSystemElement.h vector3d.cc vector3d.h Figure.h l_parser.cc l_parser.h Lsystem3DElement.h ZBuffer.h engine.cc)
+        LSystemElement.h vector3d.cc vector3d.h Figure.h l_parser.cc l_parser.h Lsystem3DElement.h ZBuffer.h engine.cc Light.h)
 
 ############################################################
 # Create an executable
 ############################################################
 set(exe_name "engine")
-add_executable( ${exe_name} ${engine_sources} Lsystem3DElement.h ZBuffer.h engine.cc)
-install( TARGETS ${exe_name} DESTINATION ${PROJECT_SOURCE_DIR}/ )
+add_executable(${exe_name} ${engine_sources} Lsystem3DElement.h ZBuffer.h engine.cc Light.h)
+install(TARGETS ${exe_name} DESTINATION ${PROJECT_SOURCE_DIR}/)

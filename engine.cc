@@ -1,4 +1,5 @@
 #include "easy_image.h"
+#include "Light.h"
 #include "ini_configuration.h"
 #include "Line2D.h"
 #include "l_parser.h"
@@ -17,6 +18,7 @@
 using namespace std;
 using Lines2D = vector<Line2D>;
 using Figures3D = vector<Figure>;
+using Lights3D = vector<Light>;
 constexpr double pi = M_PI;
 
 void
@@ -124,24 +126,83 @@ draw_zbuf_line(ZBuffer &zBuffer, img::EasyImage &image, unsigned int x0, unsigne
 
 void draw_zbuf_line(ZBuffer &zBuffer, img::EasyImage &image, const unsigned int x0, const unsigned int x1,
                     const unsigned int y, const double xG, const double yG, const double zG,
-                    const double dzdx, const double dzdy, const img::Color &color) {
+                    const double dzdx, const double dzdy, const img::Color &color, Lights3D &lights, Vector3D &n,
+                    const double d, vector<double> &diffuseReflection) {
     for (unsigned int i = x0; i <= x1; i++) {
         double z = zG + (i - xG) * dzdx + (y - yG) * dzdy;
         if (z < zBuffer.matrix[i][y]) {
+            double diffuseRed = 0;
+            double diffuseGreen = 0;
+            double diffuseBlue = 0;
+            for (auto &light: lights) {
+                if (!light.infinity) {
+                    double zCo = 1 / z;
+                    double xCo = (i * -zCo) / d;
+                    double yCo = (y * -zCo) / d;
+                    Vector3D point = Vector3D::point(xCo, yCo, zCo);
+                    Vector3D l = Vector3D::normalise(light.location - point);
+                    double cosAngle = (n.x * l.x + n.y * l.y + n.z * l.z);
+                    if (acos(cosAngle * pi / 180) <= light.angle) {
+                        diffuseRed += (double) light.diffuseLight[0] *
+                                      (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
+                        diffuseGreen += (double) light.diffuseLight[1] *
+                                        (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
+                        diffuseBlue += (double) light.diffuseLight[2] *
+                                       (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
+                    }
+                }
+            }
+            double red = diffuseRed * diffuseReflection[0] * 255;
+            double green = diffuseGreen * diffuseReflection[1] * 255;
+            double blue = diffuseBlue * diffuseReflection[2] * 255;
+            img::Color newColor = img::Color(round(color.red + red), round(color.green + green),
+                                             round(color.blue + blue));
             zBuffer.matrix[i][y] = z;
-            image(i, y) = color;
+            image(i, y) = newColor;
         }
     }
 }
 
 void draw_zbuf_triag(ZBuffer &zBuffer, img::EasyImage &image, const Vector3D &A, const Vector3D &B, const Vector3D &C,
-                     double d, double dx, double dy, img::Color &color) {
+                     double d, double dx, double dy, vector<double> &ambientReflection,
+                     vector<double> &diffuseReflection,
+                     vector<double> &specularReflection, double reflectionCoeff, Lights3D &lights) {
     Vector3D u = B - A;
     Vector3D v = C - A;
     double w1 = u.y * v.z - u.z * v.y;
     double w2 = u.z * v.x - u.x * v.z;
     double w3 = u.x * v.y - u.y * v.x;
     double k = w1 * A.x + w2 * A.y + w3 * A.z;
+    Vector3D n = Vector3D::normalise(Vector3D::cross(u, v));
+    if (k > 0) {
+        n = -n;
+    }
+    double ambientRed = 0;
+    double ambientGreen = 0;
+    double ambientBlue = 0;
+    double diffuseRed = 0;
+    double diffuseGreen = 0;
+    double diffuseBlue = 0;
+    for (auto &light: lights) {
+        ambientRed += (double) light.ambientLight[0];
+        ambientGreen += (double) light.ambientLight[1];
+        ambientBlue += (double) light.ambientLight[2];
+        if (light.infinity) {
+            Vector3D l = Vector3D::normalise(-light.direction);
+            double cosAngle = (n.x * l.x + n.y * l.y + n.z * l.z);
+            if (cosAngle > 0 and cosAngle > cos(light.angle * pi / 180)) {
+                diffuseRed += (double) light.diffuseLight[0] * (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
+                diffuseGreen +=
+                        (double) light.diffuseLight[1] * cosAngle;
+                diffuseBlue +=
+                        (double) light.diffuseLight[2] * cosAngle;
+            }
+        }
+    }
+    double red = (ambientRed * ambientReflection[0] + diffuseRed * diffuseReflection[0]) * 255;
+    double green = (ambientGreen * ambientReflection[1] + diffuseGreen * diffuseReflection[1]) * 255;
+    double blue = (ambientBlue * ambientReflection[2] + diffuseBlue * diffuseReflection[2]) * 255;
+    img::Color color = img::Color(round(red), round(green), round(blue));
     //if (k < 0) {
     Point2D newA((d * A.x) / (-A.z) + dx, (d * A.y) / (-A.z) + dy);
     Point2D newB((d * B.x) / (-B.z) + dx, (d * B.y) / (-B.z) + dy);
@@ -174,13 +235,15 @@ void draw_zbuf_triag(ZBuffer &zBuffer, img::EasyImage &image, const Vector3D &A,
         }
         int xL = lround(min(x1, min(x2, x3)) + 0.5);
         int xR = lround(max(x4, max(x5, x6)) - 0.5);
-        draw_zbuf_line(zBuffer, image, xL, xR, i, G.getX(), G.getY(), zG, dzdx, dzdy, color);
+        draw_zbuf_line(zBuffer, image, xL, xR, i, G.getX(), G.getY(), zG, dzdx, dzdy, color, lights, n, d,
+                       diffuseReflection);
     }
     //}
 }
 
-img::EasyImage draw2DLines(const Figures3D &figs, const Lines2D &lines, const int size, const string &type,
-                           const img::Color &bgColor = img::Color()) {
+img::EasyImage
+draw2DLines(const Figures3D &figs, const Lines2D &lines, const int size, const string &type, Lights3D &lights,
+            const img::Color &bgColor = img::Color()) {
     double xMin = min(lines[0].getP1().getX(), lines[0].getP2().getX());
     double xMax = max(lines[0].getP1().getX(), lines[0].getP2().getX());
     double yMin = min(lines[0].getP1().getY(), lines[0].getP2().getY());
@@ -210,11 +273,12 @@ img::EasyImage draw2DLines(const Figures3D &figs, const Lines2D &lines, const in
     double DCy = d * (yMin + yMax) / 2;
     double dx = (imageX / 2) - DCx;
     double dy = (imageY / 2) - DCy;
-    if (type == "ZBuffering") {
+    if (type == "ZBuffering" or type == "LightedZBuffering") {
         for (auto fig: figs) {
             for (auto face: fig.faces) {
                 draw_zbuf_triag(zBuffer, image, fig.points[face.point_indexes[0]], fig.points[face.point_indexes[1]],
-                                fig.points[face.point_indexes[2]], d, dx, dy, fig.color);
+                                fig.points[face.point_indexes[2]], d, dx, dy, fig.ambientReflection,
+                                fig.diffuseReflection, fig.specularReflection, fig.reflectionCoefficient, lights);
             }
         }
     } else {
@@ -280,7 +344,8 @@ generateLsystem(const string &fileName, const int size, const img::Color &bgColo
             p1 = p2;
         }
     }
-    return draw2DLines({}, lines, size, "", bgColor);
+    Lights3D lights;
+    return draw2DLines({}, lines, size, "", lights, bgColor);
 }
 
 Matrix scaleFigure(const double scaleFactor) {
@@ -769,11 +834,11 @@ Figures3D generateFractal(Figure &fig, const int n, const double scale) {
 }
 
 double pVal(const Vector3D &A, const Vector3D &B, const double dNear, const double dFar, const double dVal,
-            const double dRight) {
+            const double dRight, const string type) {
     double p = 0;
-    if (dVal == -dNear or dVal == -dFar) {
+    if (type == "NearFar") {
         p = (dVal - B.z) / (A.z - B.z);
-    } else if (dVal == dRight or dVal == -dRight) {
+    } else if (type == "LeftRight") {
         p = (B.x * dNear + B.z * dVal) / ((B.x - A.x) * dNear + (B.z - A.z) * dVal);
     } else {
         p = (B.y * dNear + B.z * dVal) / ((B.y - A.y) * dNear + (B.z - A.z) * dVal);
@@ -783,7 +848,7 @@ double pVal(const Vector3D &A, const Vector3D &B, const double dNear, const doub
 
 vector<Face>
 clipPlane(vector<Face> &faces, vector<Vector3D> &points, const double val1, const double val2, const double dNear,
-          const double dFar, const double hfov, const double aspectRatio) {
+          const double dFar, const double hfov, const double aspectRatio, const string &type) {
     double right = dNear * tan((hfov / 2) * (pi / 180));
     double top = right / aspectRatio;
     vector<Face> f1;
@@ -791,43 +856,46 @@ clipPlane(vector<Face> &faces, vector<Vector3D> &points, const double val1, cons
         int count = 0;
         for (auto point: face.point_indexes) {
             double coord = 0;
-            if (val1 == -right) {
-                coord = points[point].x;
-            } else if (val1 == -top) {
-                coord = points[point].y;
+            if (type == "LeftRight") {
+                coord = (points[point].x * dNear) / -points[point].z;
+            } else if (type == "BottomUp") {
+                coord = (points[point].y * dNear) / -points[point].z;
             } else {
                 coord = points[point].z;
             }
-            if ((val1 == -dNear and coord > val1) or (val1 != -dNear and coord < val1)) {
+            if (coord < val1) {
                 count++;
             }
         }
         if (count == 0) {
-            f1.push_back(
-                    Face({(int) face.point_indexes[0], (int) face.point_indexes[1], (int) face.point_indexes[2]}));
+            f1.push_back(face);
         }
         if (count == 1) {
             Vector3D in1, in2, out1;
             double coord;
             for (int i = 0; i <= 2; i++) {
-                if (val1 == -right) {
-                    coord = points[face.point_indexes[i]].x;
-                } else if (val1 == -top) {
-                    coord = points[face.point_indexes[i]].y;
+                if (type == "LeftRight") {
+                    coord = (points[face.point_indexes[i]].x * dNear) / -points[face.point_indexes[i]].z;
+                } else if (type == "BottomUp") {
+                    coord = (points[face.point_indexes[i]].y * dNear) / -points[face.point_indexes[i]].z;
                 } else {
                     coord = points[face.point_indexes[i]].z;
                 }
-                if ((val1 == -dNear and coord > val1) or (val1 != -dNear and coord < val1)) {
+                if (coord < val1) {
                     out1 = points[face.point_indexes[i]];
                     in1 = points[face.point_indexes[(i + 2) % 3]];
                     in2 = points[face.point_indexes[(i + 1) % 3]];
                     break;
                 }
             }
-            double p1 = pVal(out1, in1, dNear, dFar, val1, right);
-            Vector3D point1 = p1 * out1 + (1 - p1) * in1;
-            double p2 = pVal(out1, in2, dNear, dFar, val1, right);
-            Vector3D point2 = p2 * out1 + (1 - p2) * in2;
+            double p1;
+            double p2;
+            Vector3D point1;
+            Vector3D point2;
+            p1 = pVal(out1, in1, dNear, dFar, val1, right, type);
+            point1 = p1 * out1 + (1 - p1) * in1;
+            p2 = pVal(out1, in2, dNear, dFar, val1, right, type);
+            point2 = p2 * out1 + (1 - p2) * in2;
             points.push_back(in1);
             points.push_back(point1);
             points.push_back(point2);
@@ -839,23 +907,28 @@ clipPlane(vector<Face> &faces, vector<Vector3D> &points, const double val1, cons
             Vector3D in1, out1, out2;
             double coord;
             for (int i = 0; i <= 2; i++) {
-                if (val1 == -right) {
-                    coord = points[face.point_indexes[i]].x;
-                } else if (val1 == -top) {
-                    coord = points[face.point_indexes[i]].y;
+                if (type == "LeftRight") {
+                    coord = (points[face.point_indexes[i]].x * dNear) / -points[face.point_indexes[i]].z;
+                } else if (type == "BottomUp") {
+                    coord = (points[face.point_indexes[i]].y * dNear) / -points[face.point_indexes[i]].z;
                 } else {
                     coord = points[face.point_indexes[i]].z;
                 }
-                if ((val1 == -dNear and coord <= val1) or (val1 != -dNear and coord >= val1)) {
+                if (coord >= val1) {
                     out1 = points[face.point_indexes[(i + 2) % 3]];
                     in1 = points[face.point_indexes[i]];
                     out2 = points[face.point_indexes[(i + 1) % 3]];
+                    break;
                 }
             }
-            double p1 = pVal(out1, in1, dNear, dFar, val1, right);
-            Vector3D point1 = p1 * out1 + (1 - p1) * in1;
-            double p2 = pVal(out2, in1, dNear, dFar, val1, right);
-            Vector3D point2 = p2 * out2 + (1 - p1) * in1;
+            double p1;
+            double p2;
+            Vector3D point1;
+            Vector3D point2;
+            p1 = pVal(out1, in1, dNear, dFar, val1, right, type);
+            point1 = p1 * out1 + (1 - p1) * in1;
+            p2 = pVal(out2, in1, dNear, dFar, val1, right, type);
+            point2 = p2 * out2 + (1 - p2) * in1;
             points.push_back(in1);
             points.push_back(point1);
             points.push_back(point2);
@@ -867,42 +940,46 @@ clipPlane(vector<Face> &faces, vector<Vector3D> &points, const double val1, cons
         int count = 0;
         for (auto point: face.point_indexes) {
             double coord;
-            if (val1 == -right) {
-                coord = points[point].x;
-            } else if (val1 == -top) {
-                coord = points[point].y;
+            if (type == "LeftRight") {
+                coord = (points[point].x * dNear) / -points[point].z;
+            } else if (type == "BottomUp") {
+                coord = (points[point].y * dNear) / -points[point].z;
             } else {
                 coord = points[point].z;
             }
-            if ((val1 == -dNear and coord < val2) or (val1 != -dNear and coord > val2)) {
+            if (coord > val2) {
                 count++;
             }
         }
         if (count == 0) {
-            f2.push_back(
-                    Face({(int) face.point_indexes[0], (int) face.point_indexes[1], (int) face.point_indexes[2]}));
+            f2.push_back(face);
         }
         if (count == 1) {
             Vector3D in1, in2, out1;
             double coord;
             for (int i = 0; i <= 2; i++) {
-                if (val1 == -right) {
-                    coord = points[face.point_indexes[i]].x;
-                } else if (val1 == -top) {
-                    coord = points[face.point_indexes[i]].y;
+                if (type == "LeftRight") {
+                    coord = (points[face.point_indexes[i]].x * dNear) / -points[face.point_indexes[i]].z;
+                } else if (type == "BottomUp") {
+                    coord = (points[face.point_indexes[i]].y * dNear) / -points[face.point_indexes[i]].z;
                 } else {
                     coord = points[face.point_indexes[i]].z;
                 }
-                if ((val1 == -dNear and coord < val2) or (val1 != -dNear and coord > val2)) {
+                if (coord > val2) {
                     out1 = points[face.point_indexes[i]];
                     in1 = points[face.point_indexes[(i + 2) % 3]];
                     in2 = points[face.point_indexes[(i + 1) % 3]];
+                    break;
                 }
             }
-            double p1 = pVal(out1, in1, dNear, dFar, val2, right);
-            Vector3D point1 = p1 * out1 + (1 - p1) * in1;
-            double p2 = (dFar - in2.z) / (out1.z - in2.z);
-            Vector3D point2 = p2 * out1 + (1 - p2) * in2;
+            double p1;
+            double p2;
+            Vector3D point1;
+            Vector3D point2;
+            p1 = pVal(out1, in1, dNear, dFar, val2, right, type);
+            point1 = p1 * out1 + (1 - p1) * in1;
+            p2 = pVal(out1, in2, dNear, dFar, val2, right, type);
+            point2 = p2 * out1 + (1 - p2) * in2;
             points.push_back(in1);
             points.push_back(point1);
             points.push_back(point2);
@@ -914,23 +991,28 @@ clipPlane(vector<Face> &faces, vector<Vector3D> &points, const double val1, cons
             Vector3D in1, out1, out2;
             double coord;
             for (int i = 0; i <= 2; i++) {
-                if (val1 == -right) {
-                    coord = points[face.point_indexes[i]].x;
-                } else if (val1 == -top) {
-                    coord = points[face.point_indexes[i]].y;
+                if (type == "LeftRight") {
+                    coord = (points[face.point_indexes[i]].x * dNear) / -points[face.point_indexes[i]].z;
+                } else if (type == "BottomUp") {
+                    coord = (points[face.point_indexes[i]].y * dNear) / -points[face.point_indexes[i]].z;
                 } else {
                     coord = points[face.point_indexes[i]].z;
                 }
-                if ((val1 == -dNear and coord >= val2) or (val1 != -dNear and coord <= val2)) {
+                if (coord <= val2) {
                     out1 = points[face.point_indexes[(i + 2) % 3]];
                     in1 = points[face.point_indexes[i]];
                     out2 = points[face.point_indexes[(i + 1) % 3]];
+                    break;
                 }
             }
-            double p1 = pVal(out1, in1, dNear, dFar, val2, right);
-            Vector3D point1 = p1 * out1 + (1 - p1) * in1;
-            double p2 = pVal(out2, in1, dNear, dFar, val2, right);
-            Vector3D point2 = p2 * out2 + (1 - p1) * in1;
+            double p1;
+            double p2;
+            Vector3D point1;
+            Vector3D point2;
+            p1 = pVal(out1, in1, dNear, dFar, val2, right, type);
+            point1 = p1 * out1 + (1 - p1) * in1;
+            p2 = pVal(out2, in1, dNear, dFar, val2, right, type);
+            point2 = p2 * out2 + (1 - p2) * in1;
             points.push_back(in1);
             points.push_back(point1);
             points.push_back(point2);
@@ -940,15 +1022,17 @@ clipPlane(vector<Face> &faces, vector<Vector3D> &points, const double val1, cons
     return f2;
 }
 
-void clip(Figure &fig, const double dNear, const double dFar, const double hfov, const double aspectRatio) {
-    vector<Vector3D> points = fig.points;
-    vector<Face> f1 = clipPlane(fig.faces, points, -dNear, -dFar, dNear, dFar, hfov, aspectRatio);
-    double right = dNear * tan((hfov / 2) * (pi / 180));
-    vector<Face> f2 = clipPlane(f1, points, -right, right, dNear, dFar, hfov, aspectRatio);
-    double top = right / aspectRatio;
-    vector<Face> f3 = clipPlane(f2, points, -top, top, dNear, dFar, hfov, aspectRatio);
-    fig.faces = f3;
-    fig.points = points;
+void clip(Figures3D &figs, const double dNear, const double dFar, const double hfov, const double aspectRatio) {
+    for (auto &fig: figs) {
+        vector<Vector3D> points = fig.points;
+        vector<Face> f1 = clipPlane(fig.faces, points, -dFar, -dNear, dNear, dFar, hfov, aspectRatio, "NearFar");
+        double right = dNear * tan((hfov / 2) * (pi / 180));
+        vector<Face> f2 = clipPlane(f1, points, -right, right, dNear, dFar, hfov, aspectRatio, "LeftRight");
+        double top = right / aspectRatio;
+        vector<Face> f3 = clipPlane(f2, points, -top, top, dNear, dFar, hfov, aspectRatio, "BottomUp");
+        fig.faces = f3;
+        fig.points = points;
+    }
 }
 
 img::EasyImage generate_image(const ini::Configuration &configuration) {
@@ -963,6 +1047,39 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
         img::Color lineColor(lineColorTuple[0] * 255, lineColorTuple[1] * 255, lineColorTuple[2] * 255);
         return generateLsystem(LSystem, size, bgColor, lineColor);
     } else {
+        Lights3D lights;
+        if (type != "LightedZBuffering") {
+            lights.push_back({});
+        }
+        if (type == "LightedZBuffering") {
+            int nrLights = configuration["General"]["nrLights"].as_int_or_die();
+            for (int i = 0; i < nrLights; i++) {
+                vector<double> def = {0, 0, 0};
+                string light = "Light" + to_string(i);
+                bool infinity = configuration[light]["infinity"].as_bool_or_default(false);
+                vector<double> ambientLight = configuration[light]["ambientLight"].as_double_tuple_or_default(def);
+                vector<double> diffuseLight = configuration[light]["diffuseLight"].as_double_tuple_or_default(def);
+                vector<double> specularLight = configuration[light]["specularLight"].as_double_tuple_or_default(def);
+                Light l;
+                if (infinity) {
+                    l.ambientLight = ambientLight;
+                    l.diffuseLight = diffuseLight;
+                    l.specularLight = specularLight;
+                    vector<double> direction = configuration[light]["direction"].as_double_tuple_or_die();
+                    l.direction = Vector3D::vector(direction[0], direction[1], direction[2]);
+                    l.infinity = true;
+                } else {
+                    l.ambientLight = ambientLight;
+                    l.diffuseLight = diffuseLight;
+                    l.specularLight = specularLight;
+                    vector<double> location = configuration[light]["location"].as_double_tuple_or_default(def);
+                    l.location = Vector3D::point(location[0], location[1], location[2]);
+                    double angle = configuration[light]["spotAngle"].as_double_or_default(90);
+                    l.angle = angle;
+                }
+                lights.push_back(l);
+            }
+        }
         Matrix transform;
         Matrix eyeMat;
         double theta, phi, r, a, b, c;
@@ -985,8 +1102,6 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
             Figures3D figs;
             string figure = "Figure";
             figure += to_string(i);
-            vector<double> color = configuration[figure]["color"].as_double_tuple_or_die();
-            img::Color figColor(color[0] * 255, color[1] * 255, color[2] * 255);
             double rotate_x_angle = configuration[figure]["rotateX"].as_double_or_die();
             double rotate_y_angle = configuration[figure]["rotateY"].as_double_or_die();
             double rotate_z_angle = configuration[figure]["rotateZ"].as_double_or_die();
@@ -1000,7 +1115,13 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
             Matrix translation = translate(translationVector);
             Matrix scaleMatrix = scaleFigure(scale);
             transform = scaleMatrix * xRot * yRot * zRot * translation;
-            fig.color = figColor;
+            vector<double> color;
+            img::Color figColor;
+            if (type != "LightedZBuffering") {
+                color = configuration[figure]["color"].as_double_tuple_or_die();
+                figColor = img::Color(color[0] * 255, color[1] * 255, color[2] * 255);
+                fig.color = figColor;
+            }
             if (figType == "LineDrawing") {
                 int nrPoints = configuration[figure]["nrPoints"].as_int_or_die();
                 for (int j = 0; j != nrPoints; j++) {
@@ -1086,7 +1207,36 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
             } else if (figType == "BuckyBall" or figType == "FractalBuckyBall" or figType == "MengerSponge") {
                 fig = createIcosahedron(figColor);
             }
-            if (type == "ZBuffering" and figType != "LineDrawing" and figType != "3DLSystem") {
+            if (type == "LightedZBuffering") {
+                vector<double> def = {0, 0, 0};
+                vector<double> ambientReflection = configuration[figure]["ambientReflection"].as_double_tuple_or_default(
+                        def);
+                vector<double> diffuseReflection = configuration[figure]["diffuseReflection"].as_double_tuple_or_default(
+                        def);
+                vector<double> specularReflection = configuration[figure]["specularReflection"].as_double_tuple_or_default(
+                        def);
+                if (figs.empty()) {
+                    fig.ambientReflection = ambientReflection;
+                    fig.diffuseReflection = diffuseReflection;
+                    fig.specularReflection = specularReflection;
+                } else {
+                    for (auto &f: figs) {
+                        f.ambientReflection = ambientReflection;
+                        f.diffuseReflection = diffuseReflection;
+                        f.specularReflection = specularReflection;
+                    }
+                }
+            } else {
+                if (figs.empty()) {
+                    fig.ambientReflection = color;
+                } else {
+                    for (auto &f: figs) {
+                        f.ambientReflection = color;
+                    }
+                }
+            }
+            if ((type == "ZBuffering" or type == "LightedZBuffering") and figType != "LineDrawing" and
+                figType != "3DLSystem") {
                 if (figs.empty()) {
                     vector<Face> faces;
                     for (const auto &face: fig.faces) {
@@ -1107,13 +1257,6 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
                     }
                 }
             }
-            if (clipping) {
-                double dNear = configuration["General"]["dNear"].as_double_or_die();
-                double dFar = configuration["General"]["dFar"].as_double_or_die();
-                double hfov = configuration["General"]["hfov"].as_double_or_die();
-                double aspectRatio = configuration["General"]["aspectRatio"].as_double_or_die();
-                clip(fig, dNear, dFar, hfov, aspectRatio);
-            }
             if (figs.empty()) {
                 applyTransformation(fig, transform);
                 figures.push_back(fig);
@@ -1126,8 +1269,15 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
             }
         }
         applyTransformation(figures, eyeMat);
+        if (clipping) {
+            double dNear = configuration["General"]["dNear"].as_double_or_die();
+            double dFar = configuration["General"]["dFar"].as_double_or_die();
+            double hfov = configuration["General"]["hfov"].as_double_or_die();
+            double aspectRatio = configuration["General"]["aspectRatio"].as_double_or_die();
+            clip(figures, dNear, dFar, hfov, aspectRatio);
+        }
         Lines2D lines = doProjection(figures);
-        return draw2DLines(figures, lines, size, type, bgColor);
+        return draw2DLines(figures, lines, size, type, lights, bgColor);
     }
     return {};
 }

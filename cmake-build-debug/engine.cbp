@@ -128,6 +128,9 @@
 		<Unit filename="/home/liam/CLionProjects/Graphics-Engine/LSystemElement.h">
 			<Option target="engine"/>
 		</Unit>
+		<Unit filename="/home/liam/CLionProjects/Graphics-Engine/Light.h">
+			<Option target="engine"/>
+		</Unit>
 		<Unit filename="/home/liam/CLionProjects/Graphics-Engine/Line2D.h">
 			<Option target="engine"/>
 		</Unit>
