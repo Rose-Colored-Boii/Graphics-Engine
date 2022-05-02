@@ -1,7 +1,0 @@
-/home/liam/CLionProjects/Graphics-Engine/CMakeFiles/install/strip.dir
-/home/liam/CLionProjects/Graphics-Engine/CMakeFiles/install/local.dir
-/home/liam/CLionProjects/Graphics-Engine/CMakeFiles/install.dir
-/home/liam/CLionProjects/Graphics-Engine/CMakeFiles/list_install_components.dir
-/home/liam/CLionProjects/Graphics-Engine/CMakeFiles/rebuild_cache.dir
-/home/liam/CLionProjects/Graphics-Engine/CMakeFiles/edit_cache.dir
-/home/liam/CLionProjects/Graphics-Engine/CMakeFiles/engine.dir
