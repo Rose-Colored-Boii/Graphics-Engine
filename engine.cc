@@ -127,13 +127,17 @@ draw_zbuf_line(ZBuffer &zBuffer, img::EasyImage &image, unsigned int x0, unsigne
 void draw_zbuf_line(ZBuffer &zBuffer, img::EasyImage &image, const unsigned int x0, const unsigned int x1,
                     const unsigned int y, const double xG, const double yG, const double zG,
                     const double dzdx, const double dzdy, const img::Color &color, Lights3D &lights, Vector3D &n,
-                    const double d, vector<double> &diffuseReflection) {
+                    const double d, const vector<double> &diffuseReflection, const vector<double> &specularReflection,
+                    const double reflectionCoeff) {
     for (unsigned int i = x0; i <= x1; i++) {
         double z = zG + (i - xG) * dzdx + (y - yG) * dzdy;
         if (z < zBuffer.matrix[i][y]) {
             double diffuseRed = 0;
             double diffuseGreen = 0;
             double diffuseBlue = 0;
+            double specularRed = 0;
+            double specularGreen = 0;
+            double specularBlue = 0;
             for (auto &light: lights) {
                 if (!light.infinity) {
                     double zCo = 1 / z;
@@ -143,18 +147,28 @@ void draw_zbuf_line(ZBuffer &zBuffer, img::EasyImage &image, const unsigned int 
                     Vector3D l = Vector3D::normalise(light.location - point);
                     double cosAngle = (n.x * l.x + n.y * l.y + n.z * l.z);
                     if (acos(cosAngle * pi / 180) <= light.angle) {
-                        diffuseRed += (double) light.diffuseLight[0] *
+                        diffuseRed += (double) light.diffuseLight[0] * diffuseReflection[0] *
                                       (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
-                        diffuseGreen += (double) light.diffuseLight[1] *
+                        diffuseGreen += (double) light.diffuseLight[1] * diffuseReflection[1] *
                                         (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
-                        diffuseBlue += (double) light.diffuseLight[2] *
+                        diffuseBlue += (double) light.diffuseLight[2] * diffuseReflection[2] *
                                        (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
+                    }
+                    Vector3D r = 2 * cosAngle * n - l;
+                    double cosBeta = n.x * r.x + n.y * r.y + n.z * r.z;
+                    if (cosBeta > 0) {
+                        specularRed +=
+                                (double) light.specularLight[0] * specularReflection[0] * pow(cosBeta, reflectionCoeff);
+                        specularGreen +=
+                                (double) light.specularLight[1] * specularReflection[1] * pow(cosBeta, reflectionCoeff);
+                        specularBlue +=
+                                (double) light.specularLight[2] * specularReflection[2] * pow(cosBeta, reflectionCoeff);
                     }
                 }
             }
-            double red = diffuseRed * diffuseReflection[0] * 255;
-            double green = diffuseGreen * diffuseReflection[1] * 255;
-            double blue = diffuseBlue * diffuseReflection[2] * 255;
+            double red = (diffuseRed + specularRed) * 255;
+            double green = (diffuseGreen + specularGreen) * 255;
+            double blue = (diffuseBlue + specularBlue) * 255;
             img::Color newColor = img::Color(round(color.red + red), round(color.green + green),
                                              round(color.blue + blue));
             zBuffer.matrix[i][y] = z;
@@ -183,25 +197,37 @@ void draw_zbuf_triag(ZBuffer &zBuffer, img::EasyImage &image, const Vector3D &A,
     double diffuseRed = 0;
     double diffuseGreen = 0;
     double diffuseBlue = 0;
+    double specularRed = 0;
+    double specularGreen = 0;
+    double specularBlue = 0;
     for (auto &light: lights) {
-        ambientRed += (double) light.ambientLight[0];
-        ambientGreen += (double) light.ambientLight[1];
-        ambientBlue += (double) light.ambientLight[2];
+        ambientRed += (double) light.ambientLight[0] * ambientReflection[0];
+        ambientGreen += (double) light.ambientLight[1] * ambientReflection[1];
+        ambientBlue += (double) light.ambientLight[2] * ambientReflection[2];
         if (light.infinity) {
-            Vector3D l = Vector3D::normalise(-light.direction);
-            double cosAngle = (n.x * l.x + n.y * l.y + n.z * l.z);
-            if (cosAngle > 0 and cosAngle > cos(light.angle * pi / 180)) {
-                diffuseRed += (double) light.diffuseLight[0] * (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
+            Vector3D l = -Vector3D::normalise(light.direction);
+            double cosAngle = n.x * l.x + n.y * l.y + n.z * l.z;
+            if (cosAngle > 0 and acos(cosAngle) <= pi / 2) {
+                diffuseRed += (double) light.diffuseLight[0] * diffuseReflection[0] * cosAngle;
                 diffuseGreen +=
-                        (double) light.diffuseLight[1] * cosAngle;
+                        (double) light.diffuseLight[1] * diffuseReflection[1] * cosAngle;
                 diffuseBlue +=
-                        (double) light.diffuseLight[2] * cosAngle;
+                        (double) light.diffuseLight[2] * diffuseReflection[2] * cosAngle;
+            }
+            Vector3D r = 2 * cosAngle * n - l;
+            double cosBeta = n.x * r.x + n.y * r.y + n.z * r.z;
+            if (cosBeta > 0) {
+                specularRed += (double) light.specularLight[0] * specularReflection[0] * pow(cosBeta, reflectionCoeff);
+                specularGreen +=
+                        (double) light.specularLight[1] * specularReflection[1] * pow(cosBeta, reflectionCoeff);
+                specularBlue += (double) light.specularLight[2] * specularReflection[2] * pow(cosBeta, reflectionCoeff);
+                int i = 0;
             }
         }
     }
-    double red = (ambientRed * ambientReflection[0] + diffuseRed * diffuseReflection[0]) * 255;
-    double green = (ambientGreen * ambientReflection[1] + diffuseGreen * diffuseReflection[1]) * 255;
-    double blue = (ambientBlue * ambientReflection[2] + diffuseBlue * diffuseReflection[2]) * 255;
+    double red = (ambientRed + diffuseRed + specularRed) * 255;
+    double green = (ambientGreen + diffuseGreen + specularGreen) * 255;
+    double blue = (ambientBlue + diffuseBlue + specularBlue) * 255;
     img::Color color = img::Color(round(red), round(green), round(blue));
     //if (k < 0) {
     Point2D newA((d * A.x) / (-A.z) + dx, (d * A.y) / (-A.z) + dy);
@@ -236,7 +262,7 @@ void draw_zbuf_triag(ZBuffer &zBuffer, img::EasyImage &image, const Vector3D &A,
         int xL = lround(min(x1, min(x2, x3)) + 0.5);
         int xR = lround(max(x4, max(x5, x6)) - 0.5);
         draw_zbuf_line(zBuffer, image, xL, xR, i, G.getX(), G.getY(), zG, dzdx, dzdy, color, lights, n, d,
-                       diffuseReflection);
+                       diffuseReflection, specularReflection, reflectionCoeff);
     }
     //}
 }
@@ -1215,15 +1241,18 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
                         def);
                 vector<double> specularReflection = configuration[figure]["specularReflection"].as_double_tuple_or_default(
                         def);
+                double reflectionCoefficient = configuration[figure]["reflectionCoefficient"].as_double_or_default(0);
                 if (figs.empty()) {
                     fig.ambientReflection = ambientReflection;
                     fig.diffuseReflection = diffuseReflection;
                     fig.specularReflection = specularReflection;
+                    fig.reflectionCoefficient = reflectionCoefficient;
                 } else {
                     for (auto &f: figs) {
                         f.ambientReflection = ambientReflection;
                         f.diffuseReflection = diffuseReflection;
                         f.specularReflection = specularReflection;
+                        f.reflectionCoefficient = reflectionCoefficient;
                     }
                 }
             } else {
