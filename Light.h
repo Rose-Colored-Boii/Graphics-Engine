@@ -7,6 +7,7 @@
 
 #include "easy_image.h"
 #include "vector3d.h"
+#include "ZBuffer.h"
 
 class Light {
 public:
@@ -17,6 +18,11 @@ public:
     bool infinity = false;
     double angle = 90;
     Vector3D location;
+    ZBuffer shadowMask;
+    Matrix eye;
+    double d;
+    double dx;
+    double dy;
 };
 
 
