@@ -377,15 +377,15 @@ void generateShadowMask(Light &light, Figures3D &figures, int size, bool clippin
     light.dy = dy;
     Matrix matrix;
     ZBuffer shadowMask = ZBuffer((int) imageX, (int) imageY);
-    for (auto fig: figures) {
-        for (auto face: fig.faces) {
+    for (auto &fig: figures) {
+        for (auto &face: fig.faces) {
             Lights3D lights;
             draw_zbuf_triag(shadowMask, image, fig.points[face.point_indexes[0]],
                             fig.points[face.point_indexes[1]],
                             fig.points[face.point_indexes[2]], light.d, light.dx, light.dy, fig.ambientReflection,
                             fig.diffuseReflection, fig.specularReflection, fig.reflectionCoefficient, lights,
                             "LightedZBuffering",
-                            clipping, light.eye, false, false);
+                            clipping, light.eye, false, fig.texture);
         }
     }
     light.shadowMask = shadowMask;

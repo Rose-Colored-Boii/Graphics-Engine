@@ -70,7 +70,7 @@ generateLsystem(const string &fileName, const int size, const img::Color &bgColo
     }
     Lights3D lights;
     Matrix matrix;
-    return draw2DLines({}, lines, size, "", lights, false, matrix, false, false, bgColor);
+    return draw2DLines({}, lines, size, "", lights, false, matrix, false, bgColor);
 }
 
 Figures3D generateFractal(Figure &fig, const int n, const double scale) {

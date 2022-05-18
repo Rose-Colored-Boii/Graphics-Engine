@@ -6,6 +6,7 @@
 #define ENGINE_FIGURE_H
 
 #include "vector"
+#include "Texture.h"
 #include "vector3d.h"
 #include "easy_image.h"
 
@@ -22,6 +23,7 @@ public:
 
 class Figure {
 public:
+    Texture texture;
     vector<Vector3D> points;
     vector<Face> faces;
     img::Color color;

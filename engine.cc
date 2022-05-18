@@ -62,9 +62,6 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
         toPolar(eyeVector, theta, phi, r);
         bool clipping = configuration["General"]["clipping"].as_bool_or_default(false);
         bool textureMapping = configuration["General"]["textureMapping"].as_bool_or_default(false);
-        if (textureMapping) {
-
-        }
         if (clipping) {
             vector<double> viewDirection = configuration["General"]["viewDirection"].as_double_tuple_or_die();
             Vector3D viewVector = Vector3D::vector(-viewDirection[0], -viewDirection[1], -viewDirection[2]);
@@ -74,6 +71,7 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
             eyeMat = eyeMatrix(theta, phi, r);
         }
         int nrFigures = configuration["General"]["nrFigures"].as_int_or_die();
+        vector<string> textureNames(nrFigures, "");
         Figures3D figures;
         for (int i = 0; i != nrFigures; i++) {
             Figure fig;
@@ -210,6 +208,17 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
                 fig = generate3DLsystem(filename, figColor);
                 generateThiccccccFigure(fig, figs, z, x, y, figColor);
             }
+            if (textureMapping) {
+                Texture texture;
+                texture.fileName = configuration[figure]["texture"].as_string_or_default("");
+                vector<double> vectorA = configuration[figure]["a"].as_double_tuple_or_default({0, 0, 0});
+                vector<double> vectorB = configuration[figure]["b"].as_double_tuple_or_default({0, 0, 0});
+                vector<double> vectorP = configuration[figure]["p"].as_double_tuple_or_default({0, 0, 0});
+                texture.a = Vector3D::vector(vectorA[0], vectorA[1], vectorA[2]);
+                texture.b = Vector3D::vector(vectorB[0], vectorB[1], vectorB[2]);
+                texture.p = Vector3D::vector(vectorP[0], vectorP[1], vectorP[2]);
+                fig.texture = texture;
+            }
             if (type == "LightedZBuffering") {
                 vector<double> def = {0, 0, 0};
                 vector<double> ambientReflection = configuration[figure]["ambientReflection"].as_double_tuple_or_default(
@@ -303,9 +312,8 @@ img::EasyImage generate_image(const ini::Configuration &configuration) {
             clip(figures, dNear, dFar, hfov, aspectRatio);
         }
         Lines2D lines = doProjection(figures);
-        return draw2DLines(figures, lines, size, type, lights, clipping, eyeMat, shadowing, textureMapping, bgColor);
+        return draw2DLines(figures, lines, size, type, lights, clipping, eyeMat, shadowing, bgColor);
     }
-    return {};
 }
 
 int main(int argc, char const *argv[]) {

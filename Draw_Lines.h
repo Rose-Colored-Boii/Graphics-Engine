@@ -127,9 +127,34 @@ void draw_zbuf_line(ZBuffer &zBuffer, img::EasyImage &image, const unsigned int 
                     const double dzdx, const double dzdy, const img::Color &color, Lights3D &lights, Vector3D &n,
                     const double d, const vector<double> &diffuseReflection, const vector<double> &specularReflection,
                     const double reflectionCoeff, const double dx, const double dy, Matrix &eyeMat,
-                    const bool shadowing) {
+                    const bool shadowing, const Texture &texture, const img::EasyImage textureImage) {
+    vector<double> df = diffuseReflection;
+    vector<double> af = specularReflection;
+    Vector3D c;
+    Matrix textureMatrix;
+    if (texture.fileName != "") {
+        c = Vector3D::cross(texture.a, texture.b);
+        textureMatrix(1, 1) = texture.a.x;
+        textureMatrix(1, 2) = texture.a.y;
+        textureMatrix(1, 3) = texture.a.z;
+        textureMatrix(2, 1) = texture.b.x;
+        textureMatrix(2, 2) = texture.b.y;
+        textureMatrix(2, 3) = texture.b.z;
+        textureMatrix(3, 1) = c.x;
+        textureMatrix(3, 2) = c.y;
+        textureMatrix(3, 3) = c.z;
+        textureMatrix.inv();
+    }
     for (unsigned int i = x0; i <= x1; i++) {
         double z = zG + (i - xG) * dzdx + (y - yG) * dzdy;
+        Vector3D temp = Vector3D::vector(i - texture.p.x, y - texture.p.y, 1 / z - texture.p.z);
+        Vector3D values = temp * textureMatrix;
+        while (values.x > 1) {
+            values.x -= 1;
+        }
+        while (values.y > 1) {
+            values.y -= 1;
+        }
         if (z < zBuffer.matrix[i][y]) {
             double diffuseRed = 0;
             double diffuseGreen = 0;
@@ -163,11 +188,11 @@ void draw_zbuf_line(ZBuffer &zBuffer, img::EasyImage &image, const unsigned int 
                         Vector3D l = Vector3D::normalise(light.location - point);
                         double cosAngle = (n.x * l.x + n.y * l.y + n.z * l.z);
                         if (cosAngle > cos(light.angle * pi / 180) and cosAngle > 0) {
-                            diffuseRed += (double) light.diffuseLight[0] * diffuseReflection[0] *
+                            diffuseRed += (double) light.diffuseLight[0] * df[0] *
                                           (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
-                            diffuseGreen += (double) light.diffuseLight[1] * diffuseReflection[1] *
+                            diffuseGreen += (double) light.diffuseLight[1] * df[1] *
                                             (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
-                            diffuseBlue += (double) light.diffuseLight[2] * diffuseReflection[2] *
+                            diffuseBlue += (double) light.diffuseLight[2] * df[2] *
                                            (1 - (1 - cosAngle) / (1 - cos(light.angle * pi / 180)));
                         }
                     }
@@ -183,17 +208,24 @@ void draw_zbuf_line(ZBuffer &zBuffer, img::EasyImage &image, const unsigned int 
                     double cosBeta = -normalisedPoint.x * r.x - normalisedPoint.y * r.y - normalisedPoint.z * r.z;
                     if (cosBeta > 0) {
                         specularRed +=
-                                (double) light.specularLight[0] * specularReflection[0] * pow(cosBeta, reflectionCoeff);
+                                (double) light.specularLight[0] * af[0] * pow(cosBeta, reflectionCoeff);
                         specularGreen +=
-                                (double) light.specularLight[1] * specularReflection[1] * pow(cosBeta, reflectionCoeff);
+                                (double) light.specularLight[1] * af[1] * pow(cosBeta, reflectionCoeff);
                         specularBlue +=
-                                (double) light.specularLight[2] * specularReflection[2] * pow(cosBeta, reflectionCoeff);
+                                (double) light.specularLight[2] * af[2] * pow(cosBeta, reflectionCoeff);
                     }
                 }
             }
             double red = (diffuseRed + specularRed) * 255 + color.red;
             double green = (diffuseGreen + specularGreen) * 255 + color.green;
             double blue = (diffuseBlue + specularBlue) * 255 + color.blue;
+            if (texture.fileName != "") {
+                img::Color tempColor = textureImage(round(values.x * (textureImage.get_width() - 1)),
+                                                    round(values.y * (textureImage.get_height() - 1)));
+                red += tempColor.red;
+                blue += tempColor.blue;
+                green += tempColor.green;
+            }
             if (red > 255) {
                 red = 255;
             }
@@ -212,10 +244,14 @@ void draw_zbuf_line(ZBuffer &zBuffer, img::EasyImage &image, const unsigned int 
 }
 
 void draw_zbuf_triag(ZBuffer &zBuffer, img::EasyImage &image, const Vector3D &A, const Vector3D &B, const Vector3D &C,
-                     double d, double dx, double dy, vector<double> &ambientReflection,
-                     vector<double> &diffuseReflection,
-                     vector<double> &specularReflection, double reflectionCoeff, Lights3D &lights, const string &type,
-                     const bool clipping, Matrix &eyeMat, const bool shadowing, const bool textureMapping) {
+                     double d, double dx, double dy, vector<double> ambientReflection, vector<double> diffuseReflection,
+                     vector<double> specularReflection, double reflectionCoeff, Lights3D &lights, const string &type,
+                     const bool clipping, Matrix &eyeMat, const bool shadowing, const Texture texture) {
+    img::EasyImage textureImage;
+    if (texture.fileName != "") {
+        ifstream input(texture.fileName);
+        input >> textureImage;
+    }
     Vector3D u = B - A;
     Vector3D v = C - A;
     double w1 = u.y * v.z - u.z * v.y;
@@ -294,14 +330,15 @@ void draw_zbuf_triag(ZBuffer &zBuffer, img::EasyImage &image, const Vector3D &A,
             int xL = lround(min(x1, min(x2, x3)) + 0.5);
             int xR = lround(max(x4, max(x5, x6)) - 0.5);
             draw_zbuf_line(zBuffer, image, xL, xR, i, G.getX(), G.getY(), zG, dzdx, dzdy, color, lights, n, d,
-                           diffuseReflection, specularReflection, reflectionCoeff, dx, dy, eyeMat, shadowing);
+                           diffuseReflection, specularReflection, reflectionCoeff, dx, dy, eyeMat, shadowing, texture,
+                           textureImage);
         }
     }
 }
 
 img::EasyImage
 draw2DLines(const Figures3D &figs, const Lines2D &lines, const int size, const string &type, Lights3D &lights,
-            const bool clipping, Matrix &eyeMat, const bool shadowing, const bool textureMapping,
+            const bool clipping, Matrix &eyeMat, const bool shadowing,
             const img::Color &bgColor = img::Color()) {
     double xMin = min(lines[0].getP1().getX(), lines[0].getP2().getX());
     double xMax = max(lines[0].getP1().getX(), lines[0].getP2().getX());
@@ -333,12 +370,14 @@ draw2DLines(const Figures3D &figs, const Lines2D &lines, const int size, const s
     double dx = (imageX / 2) - DCx;
     double dy = (imageY / 2) - DCy;
     if (type == "ZBuffering" or type == "LightedZBuffering") {
-        for (auto fig: figs) {
-            for (auto face: fig.faces) {
-                draw_zbuf_triag(zBuffer, image, fig.points[face.point_indexes[0]], fig.points[face.point_indexes[1]],
-                                fig.points[face.point_indexes[2]], d, dx, dy, fig.ambientReflection,
-                                fig.diffuseReflection, fig.specularReflection, fig.reflectionCoefficient, lights, type,
-                                clipping, eyeMat, shadowing, textureMapping);
+        for (int i = 0; i < figs.size(); i++) {
+            for (auto face: figs[i].faces) {
+                draw_zbuf_triag(zBuffer, image, figs[i].points[face.point_indexes[0]],
+                                figs[i].points[face.point_indexes[1]],
+                                figs[i].points[face.point_indexes[2]], d, dx, dy, figs[i].ambientReflection,
+                                figs[i].diffuseReflection, figs[i].specularReflection, figs[i].reflectionCoefficient,
+                                lights, type,
+                                clipping, eyeMat, shadowing, figs[i].texture);
             }
         }
     } else {
